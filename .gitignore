@@ -1,0 +1,23 @@
+node_modules/
+
+# Allure output
+reports/allure-results/
+reports/allure-report/
+
+# Failure screenshots (kept locally, uploaded in CI)
+reports/screenshots/*.png
+
+# APKs/IPAs — never commit binaries
+apps/*.apk
+apps/*.ipa
+
+# Env secrets
+.env
+
+# Appium server log
+appium.log
+*.log
+
+# OS junk
+.DS_Store
+Thumbs.db

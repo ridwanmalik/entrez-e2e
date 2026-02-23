@@ -1,0 +1,120 @@
+name: Android E2E Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: # Allow manual trigger from GitHub UI
+
+concurrency:
+  group: e2e-android-${{ github.ref }}
+  cancel-in-progress: true # Cancel queued runs on new pushes
+
+jobs:
+  e2e-android:
+    name: E2E — Android (API 33)
+    # macOS runner is required for KVM hardware acceleration on Android emulators
+    runs-on: macos-latest
+    timeout-minutes: 45
+
+    steps:
+      # ── Checkout ─────────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── Node.js ──────────────────────────────────────────────────────────────
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      # ── Java (required by Android SDK / UiAutomator2 server) ─────────────────
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # ── Appium ───────────────────────────────────────────────────────────────
+      - name: Install Appium globally
+        run: npm install -g appium
+
+      - name: Install UiAutomator2 driver
+        run: appium driver install uiautomator2
+
+      # ── APK ──────────────────────────────────────────────────────────────────
+      # Option A: Download from a URL (e.g. artifact store, S3, Firebase App Distribution)
+      - name: Download debug APK
+        run: |
+          mkdir -p apps
+          curl -L "${{ secrets.APK_DOWNLOAD_URL }}" -o apps/app-debug.apk
+        # Remove this step and use Option B if you upload the APK as a GitHub artifact
+
+      # Option B (alternative): upload APK as a GitHub Actions artifact from your
+      # main app CI, then download it here with:
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: debug-apk
+      #     path: apps/
+
+      # ── Android emulator + tests ──────────────────────────────────────────────
+      - name: Run E2E tests on Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          arch: x86_64
+          profile: pixel_6
+          avd-name: e2e_avd
+          disable-animations: true       # Faster + more reliable selectors
+          emulator-options: >
+            -no-snapshot-save
+            -no-window
+            -gpu swiftshader_indirect
+            -noaudio
+            -no-boot-anim
+          script: yarn test:android:ci
+        env:
+          ANDROID_DEVICE_NAME: e2e_avd
+          APP_PATH: ./apps/app-debug.apk
+          APP_PACKAGE: ${{ secrets.APP_PACKAGE }}
+          APP_ACTIVITY: ${{ secrets.APP_ACTIVITY }}
+          EXPLICIT_WAIT_MS: 40000  # Emulators are slower than real devices
+
+      # ── Artifacts ────────────────────────────────────────────────────────────
+      - name: Upload Allure results
+        if: always() # Upload even on failure
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-${{ github.run_number }}
+          path: reports/allure-results/
+          retention-days: 14
+
+      - name: Upload failure screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-screenshots-${{ github.run_number }}
+          path: reports/screenshots/
+          retention-days: 7
+
+      - name: Upload Appium server log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: appium-log-${{ github.run_number }}
+          path: appium.log
+          retention-days: 7
+
+# ── Required GitHub secrets ─────────────────────────────────────────────────
+# APK_DOWNLOAD_URL  — URL to download the debug APK
+# APP_PACKAGE       — e.g. com.yourcompany.fooddelivery
+# APP_ACTIVITY      — e.g. .MainActivity
+#
+# Real device testing (self-hosted runner):
+# Replace `runs-on: macos-latest` with `runs-on: [self-hosted, android]`
+# and remove the android-emulator-runner step — run `yarn test:android:ci` directly.
