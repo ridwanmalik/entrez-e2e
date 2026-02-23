@@ -120,7 +120,9 @@ class RegistrationPage extends BasePage {
     await this.tap(this.dateOfBirthTrigger)
 
     const date = moment(dateStr, "DD/MM/YYYY")
-    const day = 28 // date.date()
+    console.log(`🔥 | dateStr:`, dateStr)
+
+    const day = date.date()
     const month = date.month() + 1
     const year = date.year()
 
@@ -130,7 +132,6 @@ class RegistrationPage extends BasePage {
         .month(await $(this.datePickerMonth).getAttribute("content-desc"))
         .month() + 1
     const curYear = parseInt(await $(this.datePickerYear).getAttribute("content-desc"))
-    console.log(`🔥 | curMonth, month:`, curMonth, month)
     await this._scrollPickerTo(this.datePickerYear, curYear, year)
     await this._scrollPickerTo(this.datePickerMonth, curMonth, month)
     await this._scrollPickerTo(this.datePickerDay, curDay, day)
@@ -146,7 +147,14 @@ class RegistrationPage extends BasePage {
     const steps = Math.abs(to - from)
 
     for (let i = 0; i < steps; i++) {
-      await driver.execute("mobile: swipeGesture", { left: x, top: y, width, height, direction, percent: 0.3 })
+      await driver.execute("mobile: swipeGesture", {
+        left: x,
+        top: y,
+        width,
+        height: height - 2,
+        direction,
+        percent: 0.3,
+      })
       await driver.pause(100)
     }
   }

@@ -1,4 +1,5 @@
 import { validUser } from "@/data/testData"
+import { second } from "@/helpers/utils"
 import RegistrationPage from "@/pageObjects/RegistrationPage"
 import WelcomePage from "@/pageObjects/WelcomePage"
 
@@ -21,7 +22,7 @@ describe("User Registration", () => {
       await RegistrationPage.enterLastName(user.lastName)
       await RegistrationPage.enterPhone(user.phone)
       await RegistrationPage.looseFocusFormPhone()
-      await driver.pause(3000)
+      await driver.pause(second(3))
       await RegistrationPage.enterEmail(user.email)
       await RegistrationPage.enterDateOfBirth(user.dateOfBirth)
       await RegistrationPage.tapNext()
@@ -31,6 +32,7 @@ describe("User Registration", () => {
   describe("Step 2 — PIN", () => {
     it("should enter and confirm PIN then proceed to Step 3", async () => {
       await RegistrationPage.enterPin(user.pin)
+      await driver.pause(second(3))
       await RegistrationPage.confirmPin(user.pin)
       await RegistrationPage.tapNext()
     })

@@ -29,7 +29,7 @@ export class BasePage {
   async setField(selector: string, value: string, timeout: number = DEFAULT_TIMEOUT): Promise<void> {
     const element = await this.waitForElement(selector, timeout)
     await element.click()
-    await element.clearValue()
+    // await element.clearValue()
     await driver.execute("mobile: type", { text: String(value) })
   }
 

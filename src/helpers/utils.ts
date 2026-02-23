@@ -7,12 +7,12 @@ export interface FinnishAddress {
 }
 
 const FINNISH_ADDRESSES: FinnishAddress[] = [
-  { street: "Porttikuja 11A 012", city: "Helsinki", postalCode: "00940" },
+  // { street: "Porttikuja 11A 012", city: "Helsinki", postalCode: "00940" }, // Invalid
   { street: "Kolmas linja 17", city: "Helsinki", postalCode: "00530" },
   { street: "Kolmas linja 18", city: "Helsinki", postalCode: "00530" },
   { street: "Kalervonkatu 5", city: "Helsinki", postalCode: "00610" },
   { street: "Harjutori 8", city: "Helsinki", postalCode: "00500" },
-  { street: "Työpajankatu 6 A", city: "Helsinki", postalCode: "00580" },
+  // { street: "Työpajankatu 6 A", city: "Helsinki", postalCode: "00580" }, // Invalid
   { street: "Ostostie 4", city: "Helsinki", postalCode: "00940" },
   // { street: 'Kivikonkaari 39 C',  city: 'Helsinki',  postalCode: '00940' }, // Invalid
   { street: "Aurakatu 6", city: "Turku", postalCode: "20100" },
