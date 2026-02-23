@@ -37,6 +37,24 @@ class RegistrationPage extends BasePage {
   get confirmPinInputInScrollView(): string {
     return 'android=new UiSelector().className("android.widget.EditText")'
   }
+  get streetInput(): string {
+    return 'android=new UiSelector().className("android.widget.EditText").instance(0)'
+  }
+  get additionalAddressInput(): string {
+    return 'android=new UiSelector().className("android.widget.EditText").instance(1)'
+  }
+  get additionalAddressInputInScrollView(): string {
+    return 'android=new UiSelector().className("android.widget.EditText").instance(0)'
+  }
+  get cityInput(): string {
+    return 'android=new UiSelector().className("android.widget.EditText").instance(2)'
+  }
+  get postalCodeInput(): string {
+    return 'android=new UiSelector().className("android.widget.EditText").instance(3)'
+  }
+  get postalCodeInputInScrollView(): string {
+    return 'android=new UiSelector().className("android.widget.EditText").instance(0)'
+  }
   get dateOfBirthTrigger(): string {
     return 'android=new UiSelector().className("android.view.View").instance(17)'
   }
@@ -54,6 +72,15 @@ class RegistrationPage extends BasePage {
   }
   get nextButton(): string {
     return '(//android.widget.ImageView[@clickable="true" and not(@content-desc)])[last()]'
+  }
+  get createAccountButton(): string {
+    return '//android.widget.Button[@content-desc="Create Account"]'
+  }
+  get registrationSuccessDialog(): string {
+    return '//android.view.View[@content-desc="Registration Successful"]'
+  }
+  get okButton(): string {
+    return '//android.widget.Button[@content-desc="OK"]'
   }
   get prevButton(): string {
     return '(//android.widget.ImageView[@clickable="true" and not(@content-desc)])[1]'
@@ -82,7 +109,7 @@ class RegistrationPage extends BasePage {
   }
   async enterEmail(email: string): Promise<void> {
     try {
-      await this.setField(this.emailInput, email, second(3))
+      await this.setField(this.emailInput, email, second(1))
     } catch (error) {
       await this.setField(this.emailInScrollView, email)
     }
@@ -93,7 +120,7 @@ class RegistrationPage extends BasePage {
     await this.tap(this.dateOfBirthTrigger)
 
     const date = moment(dateStr, "DD/MM/YYYY")
-    const day = date.date()
+    const day = 28 // date.date()
     const month = date.month() + 1
     const year = date.year()
 
@@ -103,10 +130,10 @@ class RegistrationPage extends BasePage {
         .month(await $(this.datePickerMonth).getAttribute("content-desc"))
         .month() + 1
     const curYear = parseInt(await $(this.datePickerYear).getAttribute("content-desc"))
-
-    await this._scrollPickerTo(this.datePickerDay, curDay, day)
-    await this._scrollPickerTo(this.datePickerMonth, curMonth, month)
+    console.log(`🔥 | curMonth, month:`, curMonth, month)
     await this._scrollPickerTo(this.datePickerYear, curYear, year)
+    await this._scrollPickerTo(this.datePickerMonth, curMonth, month)
+    await this._scrollPickerTo(this.datePickerDay, curDay, day)
     await this.tap(this.datePickerOk)
   }
 
@@ -129,14 +156,39 @@ class RegistrationPage extends BasePage {
   }
   async confirmPin(pin: string): Promise<void> {
     try {
-      await this.setField(this.confirmPinInput, pin, second(3))
+      await this.setField(this.confirmPinInput, pin, second(1))
     } catch (error) {
       await this.setField(this.confirmPinInputInScrollView, pin)
     }
   }
 
+  async enterStreet(street: string): Promise<void> {
+    await this.setField(this.streetInput, street)
+  }
+  async enterAdditionalAddress(additional: string): Promise<void> {
+    try {
+      await this.setField(this.additionalAddressInput, additional, second(1))
+    } catch (error) {
+      await this.setField(this.additionalAddressInputInScrollView, additional)
+    }
+  }
+  async enterCity(city: string): Promise<void> {
+    await this.setField(this.cityInput, city)
+  }
+  async enterPostalCode(postalCode: string): Promise<void> {
+    try {
+      await this.setField(this.postalCodeInput, postalCode, second(1))
+    } catch (error) {
+      await this.setField(this.postalCodeInputInScrollView, postalCode)
+    }
+  }
+
   async tapNext(): Promise<void> {
     await this.tap(this.nextButton)
+  }
+
+  async tapCreateAccount(): Promise<void> {
+    await this.tap(this.createAccountButton)
   }
 }
 

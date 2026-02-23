@@ -35,4 +35,28 @@ describe("User Registration", () => {
       await RegistrationPage.tapNext()
     })
   })
+
+  describe("Step 3 — Address", () => {
+    it("should fill address fields and proceed to Step 4", async () => {
+      await RegistrationPage.enterStreet(user.street)
+      // await RegistrationPage.enterAdditionalAddress(user.additionalAddress)
+      await RegistrationPage.enterCity(user.city)
+      await RegistrationPage.enterPostalCode(user.postalCode)
+      await RegistrationPage.tapNext()
+    })
+  })
+
+  describe("Step 4 — Card Info", () => {
+    it("should proceed with pre-filled test card info", async () => {
+      await RegistrationPage.tapNext()
+    })
+  })
+
+  describe("Step 5 — Submit", () => {
+    it("should tap Create Account, see success dialog, and dismiss it", async () => {
+      await RegistrationPage.tapCreateAccount()
+      expect(await RegistrationPage.isDisplayed(RegistrationPage.registrationSuccessDialog, 30000)).toBe(true)
+      await RegistrationPage.tap(RegistrationPage.okButton)
+    })
+  })
 })

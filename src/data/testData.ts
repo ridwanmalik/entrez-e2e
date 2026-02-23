@@ -1,4 +1,4 @@
-import { generatePhoneNumber, generateUniqueEmail } from "@/helpers/utils"
+import { generateFinnishAddress, generatePhoneNumber, generateUniqueEmail } from "@/helpers/utils"
 import { faker } from "@faker-js/faker"
 import moment from "moment"
 
@@ -15,6 +15,10 @@ export interface UserData {
   dateOfBirth: string
   role: Role
   pin: string
+  street: string
+  additionalAddress: string
+  city: string
+  postalCode: string
 }
 
 export const validUser = (): UserData => ({
@@ -25,6 +29,8 @@ export const validUser = (): UserData => ({
   dateOfBirth: moment(faker.date.birthdate({ min: 18, max: 60, mode: 'age' })).format('DD/MM/YYYY'),
   role: Role.Client,
   pin: "Test7@",
+  ...generateFinnishAddress(),
+  additionalAddress: '',
 })
 
 export const invalidUsers: Record<string, UserData> = {
@@ -36,6 +42,10 @@ export const invalidUsers: Record<string, UserData> = {
     dateOfBirth: "01/01/1990",
     role: Role.Client,
     pin: "Test7@",
+    street: "123 Test St",
+    additionalAddress: "",
+    city: "Testville",
+    postalCode: "00100",
   },
   invalidEmailFormat: {
     firstName: "Test",
@@ -45,5 +55,9 @@ export const invalidUsers: Record<string, UserData> = {
     dateOfBirth: "01/01/1990",
     role: Role.Client,
     pin: "Test7@",
+    street: "123 Test St",
+    additionalAddress: "",
+    city: "Testville",
+    postalCode: "00100",
   },
 }
