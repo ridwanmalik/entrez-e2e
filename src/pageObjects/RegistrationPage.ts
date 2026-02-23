@@ -73,6 +73,9 @@ class RegistrationPage extends BasePage {
   get nextButton(): string {
     return '(//android.widget.ImageView[@clickable="true" and not(@content-desc)])[last()]'
   }
+  get accountNumberInput(): string {
+    return 'android=new UiSelector().className("android.widget.EditText")'
+  }
   get createAccountButton(): string {
     return '//android.widget.Button[@content-desc="Create Account"]'
   }
@@ -193,6 +196,10 @@ class RegistrationPage extends BasePage {
 
   async tapNext(): Promise<void> {
     await this.tap(this.nextButton)
+  }
+
+  async enterAccountNumber(accountNumber: string): Promise<void> {
+    await this.setField(this.accountNumberInput, accountNumber)
   }
 
   async tapCreateAccount(): Promise<void> {

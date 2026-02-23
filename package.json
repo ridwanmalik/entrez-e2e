@@ -8,6 +8,8 @@
   },
   "scripts": {
     "test:android": "wdio run config/wdio.android.conf.ts",
+    "test:android:client": "wdio run config/wdio.android.conf.ts --spec src/tests/registration/clientRegistration.test.ts",
+    "test:android:service": "wdio run config/wdio.android.conf.ts --spec src/tests/registration/serviceRegistration.test.ts",
     "test:android:ci": "wdio run config/wdio.android.conf.ts --logLevel warn",
     "test:android:tag": "wdio run config/wdio.android.conf.ts --mochaOpts.grep",
     "report:generate": "allure generate reports/allure-results --clean -o reports/allure-report",

@@ -1,11 +1,11 @@
-import { validUser } from "@/data/testData"
+import { UserData } from "@/data/testData"
 import { second } from "@/helpers/utils"
 import RegistrationPage from "@/pageObjects/RegistrationPage"
 import WelcomePage from "@/pageObjects/WelcomePage"
 
-describe("User Registration", () => {
-  const user = validUser()
-
+// Shared Steps 1–3 used by both client and service registration flows.
+// Step 4 onwards differs between roles — handle those in each test file.
+export const runSharedRegistrationSteps = (user: UserData) => {
   describe("Step 1 — Personal Details", () => {
     it("should display the Welcome page on app launch", async () => {
       expect(await WelcomePage.isLoaded()).toBe(true)
@@ -47,18 +47,4 @@ describe("User Registration", () => {
       await RegistrationPage.tapNext()
     })
   })
-
-  describe("Step 4 — Card Info", () => {
-    it("should proceed with pre-filled test card info", async () => {
-      await RegistrationPage.tapNext()
-    })
-  })
-
-  describe("Step 5 — Submit", () => {
-    it("should tap Create Account, see success dialog, and dismiss it", async () => {
-      await RegistrationPage.tapCreateAccount()
-      expect(await RegistrationPage.isDisplayed(RegistrationPage.registrationSuccessDialog, 30000)).toBe(true)
-      await RegistrationPage.tap(RegistrationPage.okButton)
-    })
-  })
-})
+}
