@@ -12,6 +12,8 @@
     "test:android:service": "wdio run config/wdio.android.conf.ts --spec src/tests/registration/serviceRegistration.test.ts",
     "test:android:ci": "wdio run config/wdio.android.conf.ts --logLevel warn",
     "test:android:tag": "wdio run config/wdio.android.conf.ts --mochaOpts.grep",
+    "test:web": "wdio run config/wdio.web.conf.ts",
+    "test:web:partner": "wdio run config/wdio.web.conf.ts --spec src/tests/web/partnerRegistration.test.ts",
     "report:generate": "allure generate reports/allure-results --clean -o reports/allure-report",
     "report:open": "allure open reports/allure-report",
     "report": "yarn report:generate && yarn report:open",
@@ -33,10 +35,12 @@
     "allure-commandline": "^2.31.0",
     "appium": "^3.0.0",
     "appium-uiautomator2-driver": "^7.0.0",
+    "chromedriver": "^145.0.6",
     "dotenv": "^16.4.0",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "wdio-chromedriver-service": "^8.1.1"
   },
   "dependencies": {
     "moment": "^2.30.1"
