@@ -50,3 +50,5 @@ export const retry = async <T>(fn: () => Promise<T>, retries: number = 3, delayM
 }
 
 export const second = (s: number): number => s * 1000
+
+export const minute = (m: number): number => m * 60 * 1000

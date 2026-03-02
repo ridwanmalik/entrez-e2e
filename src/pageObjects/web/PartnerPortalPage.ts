@@ -1,43 +1,65 @@
-import { PartnerData } from '@/data/partnerData'
-import { BaseWebPage } from '@/pageObjects/base/BaseWebPage'
+import { PartnerData } from "@/data/partnerData"
+import { BaseWebPage } from "@/pageObjects/base/BaseWebPage"
 
 class PartnerPortalPage extends BaseWebPage {
   // ── Selectors ───────────────────────────────────────────────────────────────
 
   // Business ID — triggers auto-fill of business name
-  get businessIdInput(): string { return '#text_business_id' }
+  get businessIdInput(): string {
+    return "#text_business_id"
+  }
 
   // Business Type — regular <select>, must be selected manually
-  get businessTypeSelect(): string { return 'select[name="business_type"]' }
+  get businessTypeSelect(): string {
+    return 'select[name="business_type"]'
+  }
 
   // Address fields — filled manually
-  get addressInput(): string { return '#text_business_address' }   // Google Maps autocomplete
-  get postalCodeInput(): string { return '#text_business_postal_code' }
-  get cityInput(): string { return '#text_business_city' }
+  get addressInput(): string {
+    return "#text_business_address"
+  } // Google Maps autocomplete
+  get postalCodeInput(): string {
+    return "#text_business_postal_code"
+  }
+  get cityInput(): string {
+    return "#text_business_city"
+  }
 
   // Contact person
-  get firstNameInput(): string { return '#text_first_name' }
-  get lastNameInput(): string { return '#text_last_name' }
-  get mobileInput(): string { return '#mobile' }
-  get emailInput(): string { return '#text_email' }
+  get firstNameInput(): string {
+    return "#text_first_name"
+  }
+  get lastNameInput(): string {
+    return "#text_last_name"
+  }
+  get mobileInput(): string {
+    return "#mobile"
+  }
+  get emailInput(): string {
+    return "#text_email"
+  }
 
-  get submitButton(): string { return 'button[type="submit"]' }
-  get successMessage(): string { return '.alert-success, [class*="success"]' }
+  get submitButton(): string {
+    return 'button[type="submit"]'
+  }
+  get successMessage(): string {
+    return '.alert-success, [class*="success"]'
+  }
 
   // ── Page state ───────────────────────────────────────────────────────────────
 
   async open(): Promise<void> {
-    const maxWaitMs = 120000  // 2 minutes
+    const maxWaitMs = 120000 // 2 minutes
     const retryIntervalMs = 10000
     const started = Date.now()
 
-    await browser.url('/')
+    await browser.url("/")
 
-    while (!(await this.isDisplayed('div.join-courier', 5000))) {
+    while (!(await this.isDisplayed("div.join-courier", 5000))) {
       if (Date.now() - started > maxWaitMs) {
-        throw new Error('[PartnerPortalPage] Server did not become available after 2 minutes')
+        throw new Error("[PartnerPortalPage] Server did not become available after 2 minutes")
       }
-      console.log('[PartnerPortalPage] Server not ready (possibly 502), retrying in 10s...')
+      console.log("[PartnerPortalPage] Server not ready (possibly 502), retrying in 10s...")
       await browser.pause(retryIntervalMs)
       await browser.refresh()
     }
@@ -65,8 +87,10 @@ class PartnerPortalPage extends BaseWebPage {
 
   async enterAddress(address: string): Promise<void> {
     await this.fill(this.addressInput, address)
-    // Dismiss the Google Maps Places autocomplete dropdown
-    await browser.keys('Escape')
+    // Wait for Google Maps autocomplete dropdown and click first suggestion
+    const firstSuggestion = await $(".pac-container .pac-item:first-child")
+    await firstSuggestion.waitForDisplayed({ timeout: 10000 })
+    await firstSuggestion.click()
   }
 
   async enterPostalCode(postalCode: string): Promise<void> {
@@ -87,7 +111,7 @@ class PartnerPortalPage extends BaseWebPage {
 
   async enterMobile(mobile: string): Promise<void> {
     // The form already shows +358 as a static prefix, so strip it from the number
-    const localNumber = mobile.startsWith('358') ? mobile.slice(3) : mobile
+    const localNumber = mobile.startsWith("358") ? mobile.slice(3) : mobile
     await this.fill(this.mobileInput, localNumber)
   }
 
@@ -107,8 +131,6 @@ class PartnerPortalPage extends BaseWebPage {
     await this.waitForAutoFill()
     await this.selectBusinessType(partner.businessType)
     await this.enterAddress(partner.address)
-    await this.enterPostalCode(partner.postalCode)
-    await this.enterCity(partner.city)
     await this.enterFirstName(partner.firstName)
     await this.enterLastName(partner.lastName)
     await this.enterMobile(partner.mobile)
