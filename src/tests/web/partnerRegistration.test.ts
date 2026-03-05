@@ -39,6 +39,6 @@ describe("Partner Portal — Join Partner Registration", () => {
 
   it("should submit the application successfully", async () => {
     await PartnerPortalPage.submitApplication()
-    expect(await PartnerPortalPage.isDisplayed(PartnerPortalPage.successMessage, 10000)).toBe(true)
+    expect(await PartnerPortalPage.isDisplayed(PartnerPortalPage.successMessage, second(10))).toBe(true)
   })
 })

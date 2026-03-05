@@ -1,5 +1,6 @@
 import { Role, validUser } from "@/data/testData"
 import { runSharedRegistrationSteps } from "@/helpers/registrationFlow"
+import { second } from "@/helpers/utils"
 import RegistrationPage from "@/pageObjects/RegistrationPage"
 
 describe("Service Registration", () => {
@@ -23,7 +24,7 @@ describe("Service Registration", () => {
   describe("Step 6 — Submit", () => {
     it("should tap Create Account, see success dialog, and dismiss it", async () => {
       await RegistrationPage.tapCreateAccount()
-      expect(await RegistrationPage.isDisplayed(RegistrationPage.registrationSuccessDialog, 30000)).toBe(true)
+      expect(await RegistrationPage.isDisplayed(RegistrationPage.registrationSuccessDialog, second(30))).toBe(true)
       await RegistrationPage.tap(RegistrationPage.okButton)
     })
   })

@@ -287,6 +287,18 @@ export const BUSINESS_ENTRIES: BusinessEntry[] = [
   { id: '1025188-2', name: 'Claudicraft Oy' },
 ]
 
+export interface PartnerCredentials {
+  name: string
+  email: string
+  password: string
+}
+
+export const qaPartner: PartnerCredentials = {
+  name: 'Amely Dibbert-Mante',
+  email: 'qa135330@example.com',
+  password: '91739658',
+}
+
 export const randomBusinessEntry = (): BusinessEntry =>
   BUSINESS_ENTRIES[Math.floor(Math.random() * BUSINESS_ENTRIES.length)]
 

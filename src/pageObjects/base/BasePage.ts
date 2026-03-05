@@ -1,4 +1,5 @@
 import moment from "moment"
+import { second } from "@/helpers/utils"
 
 const DEFAULT_TIMEOUT = parseInt(process.env.EXPLICIT_WAIT_MS || "30000", 10)
 
@@ -88,7 +89,7 @@ export class BasePage {
   ): Promise<void> {
     try {
       const loader = await $(loaderSelector)
-      await loader.waitForDisplayed({ timeout: 3000 })
+      await loader.waitForDisplayed({ timeout: second(3) })
       await loader.waitForDisplayed({
         timeout,
         reverse: true,

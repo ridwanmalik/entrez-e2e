@@ -1,4 +1,5 @@
 import { PartnerData } from "@/data/partnerData"
+import { minute, second } from "@/helpers/utils"
 import { BaseWebPage } from "@/pageObjects/base/BaseWebPage"
 
 class PartnerPortalPage extends BaseWebPage {
@@ -49,13 +50,13 @@ class PartnerPortalPage extends BaseWebPage {
   // ── Page state ───────────────────────────────────────────────────────────────
 
   async open(): Promise<void> {
-    const maxWaitMs = 120000 // 2 minutes
-    const retryIntervalMs = 10000
+    const maxWaitMs = minute(2)
+    const retryIntervalMs = second(10)
     const started = Date.now()
 
     await browser.url("/")
 
-    while (!(await this.isDisplayed("div.join-courier", 5000))) {
+    while (!(await this.isDisplayed("div.join-courier", second(5)))) {
       if (Date.now() - started > maxWaitMs) {
         throw new Error("[PartnerPortalPage] Server did not become available after 2 minutes")
       }
@@ -78,7 +79,7 @@ class PartnerPortalPage extends BaseWebPage {
   // After entering the business ID, the form auto-fills name and type.
   // Wait briefly for the Livewire update to complete.
   async waitForAutoFill(): Promise<void> {
-    await browser.pause(2000)
+    await browser.pause(second(2))
   }
 
   async selectBusinessType(type: string): Promise<void> {
@@ -89,7 +90,7 @@ class PartnerPortalPage extends BaseWebPage {
     await this.fill(this.addressInput, address)
     // Wait for Google Maps autocomplete dropdown and click first suggestion
     const firstSuggestion = await $(".pac-container .pac-item:first-child")
-    await firstSuggestion.waitForDisplayed({ timeout: 10000 })
+    await firstSuggestion.waitForDisplayed({ timeout: second(10) })
     await firstSuggestion.click()
   }
 

@@ -4,6 +4,7 @@ WebdriverIO v8 + Appium (Android) + Chrome (web). Use Yarn.
 
 ## Always use these helpers (`@/helpers/utils`)
 - `second(n)` — ms converter. Use `second(3)` never `3000`
+- `minute(n)` — ms converter. Use `minute(2)` never `120000`
 - `generatePhoneNumber()` → `358XXXXXXXX` (Android app)
 - `generateUniqueEmail()`, `generateFinnishAddress()`
 
