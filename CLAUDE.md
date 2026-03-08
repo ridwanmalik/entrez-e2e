@@ -8,6 +8,10 @@ WebdriverIO v8 + Appium (Android) + Chrome (web). Use Yarn.
 - `generatePhoneNumber()` → `358XXXXXXXX` (Android app)
 - `generateUniqueEmail()`, `generateFinnishAddress()`
 
+## Android App
+- **Entry point is `WelcomePage`** — every Android test flow starts there, not on the login screen
+- From `WelcomePage`, tap Login to reach `LoginPage`, or tap Create Account to reach `RegistrationPage`
+
 ## Partner Portal (web)
 - Server sleeps — `open()` retries until `div.join-courier` appears
 
