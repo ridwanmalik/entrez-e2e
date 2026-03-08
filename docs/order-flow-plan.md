@@ -20,25 +20,23 @@ A full end-to-end order lifecycle test spanning the customer Android app, the pa
 
 This flow crosses two platforms (Android + web), so it cannot run in a single wdio session. The approach:
 
-- **Three separate wdio configs** — one per platform segment, run in sequence by a shell script.
-- **Shared state file** — `src/data/orderState.json` (git-ignored). Tests write and read order data (e.g. order ID, customer name) across sessions.
-- **One yarn command** — `yarn test:order` — runs the full chain.
-- **One test entry point** — `orderFlow.test.ts` — calls each step's flow helper in sequence.
+- **Three wdio sessions** chained by `&&` in `package.json` — customer Android → partner Chrome → driver Android.
 - **Flow helpers** — one helper per step (e.g. `customerLoginFlow.ts`), containing the `describe`/`it` blocks. Same pattern as `registrationFlow.ts`.
 
 ```
 yarn test:order
-  ├── [Android] orderFlow.test.ts
-  │     ├── runCustomerLoginSteps()    (customer login)
-  │     ├── runPlaceOrderSteps()       (place order)
-  │     └── runCustomerLogoutSteps()   (logout)
-  └── [Chrome]  partnerOrderFlow.test.ts
-        ├── runPartnerLoginSteps()     (partner login)
-        ├── runPartnerAcceptSteps()    (accept order + ready for pickup)
-        └── runDriverDeliverySteps()   (pickup + delivered) ← TBD: may move to a third Android session
+  ├── [Android #1] orderFlow.test.ts
+  │     ├── runCustomerLoginSteps()        (customer login)
+  │     ├── runPlaceOrderSteps()           (place order)
+  │     └── runCustomerLogoutSteps()       (logout)
+  ├── [Chrome]     partnerOrderFlow.test.ts
+  │     ├── runPartnerLoginSteps()         (partner login)
+  │     └── runPartnerOrderBoardSteps()    (ready for process → ready for pickup)
+  └── [Android #2] driverOrderFlow.test.ts
+        └── runDriverDeliverySteps()       (driver login, pickup, deliver)
 ```
 
-> The two sessions are chained in `package.json` with `&&` — Android runs first, Chrome second. If the Android session fails, the web session is skipped.
+> Sessions are chained with `&&` — if any session fails, subsequent sessions are skipped.
 
 ---
 
@@ -48,10 +46,11 @@ yarn test:order
 src/
   tests/
     order-flow/
-      orderFlow.test.ts              # DONE — Android entry point (customer login, place order, logout)
+      orderFlow.test.ts              # DONE — Android #1 (customer login, place order, logout)
+      driverOrderFlow.test.ts        # next — Android #2 (driver login, pickup, deliver)
     web/
       order-flow/
-        partnerOrderFlow.test.ts     # DONE — Chrome entry point (partner login, accept, …)
+        partnerOrderFlow.test.ts     # DONE — Chrome (partner login, order board)
   pageObjects/
     app/
       LoginPage.ts                   # DONE — customer login screen
@@ -65,9 +64,8 @@ src/
       DriverLoginPage.ts             # driver login screen
       DriverOrderPage.ts             # driver active delivery screen
     web/
-      PartnerLoginPage.ts            # already exists
-      PartnerOrdersPage.ts           # order list page in partner dashboard
-      PartnerOrderDetailPage.ts      # single order — accept / ready buttons
+      PartnerLoginPage.ts            # DONE — login form
+      PartnerOrdersPage.ts           # DONE — order board, ready for process, ready for pickup
   data/
     customerData.ts                  # DONE — qaCustomer credentials
     partnerData.ts                   # already exists — qaPartner credentials
@@ -79,8 +77,8 @@ src/
     placeOrderFlow.ts                # DONE — runPlaceOrderSteps()
     customerLogoutFlow.ts            # DONE — runCustomerLogoutSteps()
     partnerLoginFlow.ts              # DONE — runPartnerLoginSteps()
-    partnerAcceptFlow.ts             # runPartnerAcceptSteps()
-    driverDeliveryFlow.ts            # runDriverDeliverySteps()
+    partnerOrderBoardFlow.ts         # DONE — runPartnerOrderBoardSteps()
+    driverDeliveryFlow.ts            # next  — runDriverDeliverySteps()
 config/
   wdio.android.conf.ts               # already exists — used for customer + driver steps
   wdio.web.conf.ts                   # already exists — used for partner step
@@ -148,26 +146,21 @@ The JSON file is written by `02-placeOrder.test.ts` and read by `03-partnerAccep
 - Enter password
 - Submit and assert dashboard is loaded
 
-### partnerAcceptFlow.ts — `runPartnerAcceptSteps()`
+### partnerOrderBoardFlow.ts — `runPartnerOrderBoardSteps()` — DONE
 
-- Open partner portal (`PartnerLoginPage.open()` with sleep-retry)
-- Log in with `qaPartner` credentials
-- Navigate to Orders page
-- Find the order by ID (from `orderState.json`)
-- Click **Accept order**
-- Assert status changes to "Accepted"
-- Click **Ready for pickup**
-- Assert status changes to "Ready for pickup"
+- Navigate to `/member/orders`
+- Assert Order Board page is loaded (`.dashboard_bar` heading)
+- Tap **Ready for Process** on the first order card
+- Wait 10 seconds for UI to update
+- Tap **Ready for Pickup** on the first order card
 
-### driverDeliveryFlow.ts — `runDriverDeliverySteps()`
+### driverDeliveryFlow.ts — `runDriverDeliverySteps()` — next
 
-- Open driver app
+- Open driver app (`driverOrderFlow.test.ts` — Android #2 session)
 - Log in with driver credentials
-- Assert the pending order appears (matched by order ID or restaurant name)
-- Tap **Pick up** / confirm pickup
-- Assert status changes to "Picked up"
-- Tap **Delivered**
-- Assert status changes to "Delivered"
+- Assert the pending order appears
+- Tap pickup / confirm
+- Tap delivered / confirm
 
 ---
 
@@ -185,15 +178,14 @@ The JSON file is written by `02-placeOrder.test.ts` and read by `03-partnerAccep
 | `CheckoutPage`           | `isLoaded()`, `tapPlaceOrder()`, `tapOk()`                                                                                                        |
 | `DriverLoginPage`        | email, password, submit, `login()`, `isLoggedIn()`                                                                                                |
 | `DriverOrderPage`        | active order card, pickup button, deliver button, status label, `confirmPickup()`, `confirmDelivered()`, `getStatus()`                            |
-| `PartnerOrdersPage`      | order list/table, `findOrder(orderId)`, `openOrder(orderId)`                                                                                      |
-| `PartnerOrderDetailPage` | accept button, ready-for-pickup button, status label, `acceptOrder()`, `markReadyForPickup()`, `getStatus()`                                      |
+| `PartnerOrdersPage`      | `isLoaded()`, `open()`, `tapReadyForProcess()`, `tapReadyForPickup()`                                                                             |
 
 ---
 
 ## package.json Script
 
 ```json
-"test:order": "wdio run config/wdio.android.conf.ts --spec src/tests/order-flow/orderFlow.test.ts && wdio run config/wdio.web.conf.ts --spec src/tests/web/order-flow/partnerOrderFlow.test.ts"
+"test:order": "wdio run config/wdio.android.conf.ts --spec src/tests/order-flow/orderFlow.test.ts && wdio run config/wdio.web.conf.ts --spec src/tests/web/order-flow/partnerOrderFlow.test.ts && wdio run config/wdio.android.conf.ts --spec src/tests/order-flow/driverOrderFlow.test.ts"
 ```
 
 ---
@@ -202,13 +194,10 @@ The JSON file is written by `02-placeOrder.test.ts` and read by `03-partnerAccep
 
 Before implementation, confirm:
 
-- [ ] Customer app credentials (email + password for a test account)
+- [x] Customer app credentials — in `customerData.ts`
+- [x] Partner portal credentials — `jubu700@gmail.com` in `partnerData.ts` (`qaOrderPartner`)
 - [ ] Driver app credentials (email + password)
 - [ ] Whether driver app is a separate APK or the same app with a role switch
-- [ ] Partner portal credentials — already in `partnerData.ts` (`qaPartner`)
-- [ ] How the order ID is exposed on the confirmation screen (text, accessibility label, URL?)
-- [ ] How the partner orders page lists orders (by ID, by customer name, by time?)
-- [ ] Order status label text for each state (e.g. "Accepted", "Ready for pickup", "Delivered")
 
 ---
 

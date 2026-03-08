@@ -1,6 +1,7 @@
 import { qaOrderPartner } from "@/data/partnerData"
 import { runPartnerLoginSteps } from "@/helpers/partnerLoginFlow"
-import { minute, second } from "@/helpers/utils"
+import { runPartnerOrderBoardSteps } from "@/helpers/partnerOrderBoardFlow"
+import { minute } from "@/helpers/utils"
 
 describe("Partner Order Flow", () => {
   after(async () => {
@@ -8,4 +9,5 @@ describe("Partner Order Flow", () => {
   })
 
   runPartnerLoginSteps(qaOrderPartner)
+  runPartnerOrderBoardSteps()
 })
