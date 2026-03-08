@@ -10,6 +10,10 @@ class CustomerHomePage extends BasePage {
     return '//android.view.View[@content-desc="FOODS"]'
   }
 
+  get accountTab(): string {
+    return '//android.widget.ImageView[@content-desc="Tab 1 of 4"]'
+  }
+
   restaurantItem(index: number): string {
     return `(//android.view.View[@content-desc="Nearby restaurants"]//android.widget.ImageView)[${index + 1}]`
   }
@@ -26,6 +30,10 @@ class CustomerHomePage extends BasePage {
 
   async tapRestaurant(index: number): Promise<void> {
     await this.tap(this.restaurantItem(index))
+  }
+
+  async tapAccountTab(): Promise<void> {
+    await this.tap(this.accountTab)
   }
 }
 

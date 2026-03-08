@@ -31,6 +31,7 @@ yarn test:order
   └── orderFlow.test.ts
         ├── runCustomerLoginSteps()    (Android — customer login)
         ├── runPlaceOrderSteps()       (Android — place order)
+        ├── runCustomerLogoutSteps()   (Android — logout)
         ├── runPartnerAcceptSteps()    (Chrome  — partner accept + ready)
         └── runDriverDeliverySteps()   (Android — pickup + delivered)
 ```
@@ -49,8 +50,13 @@ src/
   pageObjects/
     app/
       LoginPage.ts                   # DONE — customer login screen
-      CustomerHomePage.ts            # customer home / restaurant listing
-      CustomerOrderPage.ts           # cart, checkout, order confirmation
+      CustomerHomePage.ts            # DONE — customer home / restaurant listing
+      RestaurantMenuPage.ts          # DONE — restaurant menu, tap items, tap cart
+      ItemDetailPage.ts              # DONE — item detail, variations, drink selection, add to cart
+      CartPage.ts                    # DONE — cart summary, continue button
+      DriverSelectionPage.ts         # DONE — driver selection in checkout flow
+      CheckoutPage.ts                # DONE — final checkout, place order, dismiss confirmation
+      CustomerDrawerPage.ts          # DONE — left-side drawer, log out button
       DriverLoginPage.ts             # driver login screen
       DriverOrderPage.ts             # driver active delivery screen
     web/
@@ -65,7 +71,8 @@ src/
   helpers/
     utils.ts                         # already exists — second(), minute(), etc.
     customerLoginFlow.ts             # DONE — runCustomerLoginSteps()
-    placeOrderFlow.ts                # runPlaceOrderSteps()
+    placeOrderFlow.ts                # DONE — runPlaceOrderSteps()
+    customerLogoutFlow.ts            # DONE — runCustomerLogoutSteps()
     partnerAcceptFlow.ts             # runPartnerAcceptSteps()
     driverDeliveryFlow.ts            # runDriverDeliverySteps()
 config/
@@ -100,15 +107,32 @@ The JSON file is written by `02-placeOrder.test.ts` and read by `03-partnerAccep
 - Enter password
 - Tap login, assert home screen is visible
 
-### placeOrderFlow.ts — `runPlaceOrderSteps()`
+### placeOrderFlow.ts — `runPlaceOrderSteps()` — DONE
 
-- Browse to a restaurant
-- Add one or more items to cart
-- Proceed to checkout
-- Confirm delivery address (use `generateFinnishAddress()`)
-- Place the order
-- Assert order confirmation screen appears with an order ID
-- Write `orderId` + order details to `orderState.json`
+- Tap FOODS category on home screen (if visible)
+- Tap the second restaurant in the list
+- Assert `RestaurantMenuPage` is loaded
+- Tap Pizza item
+- Assert `ItemDetailPage` is loaded
+- Select the first variation
+- Select Coke as the drink
+- Tap Add to Cart
+- Tap the cart button from the menu page
+- Assert `CartPage` is loaded
+- Tap Continue
+- Assert `DriverSelectionPage` is loaded
+- Select a driver
+- Confirm driver selection
+- Assert `CheckoutPage` is loaded
+- Tap Place Order
+- Dismiss the order created successfully popup
+
+### customerLogoutFlow.ts — `runCustomerLogoutSteps()` — DONE
+
+- Tap the account tab (`Tab 1 of 4`) on the home screen — drawer slides in from the left
+- Assert `CustomerDrawerPage` is loaded (Log Out button visible)
+- Tap Log Out
+- Assert `WelcomePage` is loaded
 
 ### partnerAcceptFlow.ts — `runPartnerAcceptSteps()`
 
@@ -138,8 +162,13 @@ The JSON file is written by `02-placeOrder.test.ts` and read by `03-partnerAccep
 | Page Object              | Key selectors / methods                                                                                                                           |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `LoginPage`      | email input, password input, login button, `login(email, pw)`, `isLoggedIn()`                                                                     |
-| `CustomerHomePage`       | restaurant list, `openRestaurant(name)`                                                                                                           |
-| `CustomerOrderPage`      | item list, add-to-cart button, cart summary, checkout button, address field, place-order button, order ID element, `placeOrder()`, `getOrderId()` |
+| `CustomerHomePage`       | restaurant list, `tapFoodsIfVisible()`, `tapRestaurant(index)`, `tapAccountTab()`                                                                 |
+| `CustomerDrawerPage`     | `isLoaded()`, `tapLogOut()`                                                                                                                       |
+| `RestaurantMenuPage`     | `isLoaded()`, `tapPizza()`, `tapCartButton()`                                                                                                     |
+| `ItemDetailPage`         | `isLoaded()`, `selectFirstVariation()`, `selectCoke()`, `tapAddToCart()`                                                                          |
+| `CartPage`               | `isLoaded()`, `tapContinue()`                                                                                                                     |
+| `DriverSelectionPage`    | `isLoaded()`, `selectDriver()`, `tapConfirm()`                                                                                                    |
+| `CheckoutPage`           | `isLoaded()`, `tapPlaceOrder()`, `tapOk()`                                                                                                        |
 | `DriverLoginPage`        | email, password, submit, `login()`, `isLoggedIn()`                                                                                                |
 | `DriverOrderPage`        | active order card, pickup button, deliver button, status label, `confirmPickup()`, `confirmDelivered()`, `getStatus()`                            |
 | `PartnerOrdersPage`      | order list/table, `findOrder(orderId)`, `openOrder(orderId)`                                                                                      |
