@@ -10,8 +10,16 @@ class RestaurantMenuPage extends BasePage {
     return this.isDisplayed(this.pizzaItem, second(20))
   }
 
+  get cartButton(): string {
+    return 'android=new UiSelector().descriptionContains("See details in cart")'
+  }
+
   async tapPizza(): Promise<void> {
     await this.tap(this.pizzaItem)
+  }
+
+  async tapCartButton(): Promise<void> {
+    await this.tap(this.cartButton)
   }
 }
 
