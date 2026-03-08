@@ -298,6 +298,12 @@ export const qaPartner: PartnerCredentials = {
   password: "12345678",
 }
 
+export const qaOrderPartner: PartnerCredentials = {
+  name: "",
+  email: "jubu700@gmail.com",
+  password: "12345678",
+}
+
 export const randomBusinessEntry = (): BusinessEntry =>
   BUSINESS_ENTRIES[Math.floor(Math.random() * BUSINESS_ENTRIES.length)]
 

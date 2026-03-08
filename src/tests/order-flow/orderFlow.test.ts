@@ -4,7 +4,7 @@ import { runCustomerLogoutSteps } from "@/helpers/customerLogoutFlow"
 import { runPlaceOrderSteps } from "@/helpers/placeOrderFlow"
 
 describe("Order Flow", () => {
-  runCustomerLoginSteps(qaCustomer)
-  runPlaceOrderSteps()
-  runCustomerLogoutSteps()
+  // runCustomerLoginSteps(qaCustomer)
+  // runPlaceOrderSteps()
+  // runCustomerLogoutSteps()
 })

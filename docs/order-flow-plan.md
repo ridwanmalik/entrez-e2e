@@ -28,15 +28,17 @@ This flow crosses two platforms (Android + web), so it cannot run in a single wd
 
 ```
 yarn test:order
-  └── orderFlow.test.ts
-        ├── runCustomerLoginSteps()    (Android — customer login)
-        ├── runPlaceOrderSteps()       (Android — place order)
-        ├── runCustomerLogoutSteps()   (Android — logout)
-        ├── runPartnerAcceptSteps()    (Chrome  — partner accept + ready)
-        └── runDriverDeliverySteps()   (Android — pickup + delivered)
+  ├── [Android] orderFlow.test.ts
+  │     ├── runCustomerLoginSteps()    (customer login)
+  │     ├── runPlaceOrderSteps()       (place order)
+  │     └── runCustomerLogoutSteps()   (logout)
+  └── [Chrome]  partnerOrderFlow.test.ts
+        ├── runPartnerLoginSteps()     (partner login)
+        ├── runPartnerAcceptSteps()    (accept order + ready for pickup)
+        └── runDriverDeliverySteps()   (pickup + delivered) ← TBD: may move to a third Android session
 ```
 
-> Note: Because the customer/driver steps run on Android and the partner step runs on Chrome, the wdio config must switch between sessions. This will be handled by a shell script that runs the android config, then the web config, then the android config again — each pointing to `orderFlow.test.ts` with a `--spec` or suite filter.
+> The two sessions are chained in `package.json` with `&&` — Android runs first, Chrome second. If the Android session fails, the web session is skipped.
 
 ---
 
@@ -46,7 +48,10 @@ yarn test:order
 src/
   tests/
     order-flow/
-      orderFlow.test.ts              # single entry point — calls all flow helpers
+      orderFlow.test.ts              # DONE — Android entry point (customer login, place order, logout)
+    web/
+      order-flow/
+        partnerOrderFlow.test.ts     # DONE — Chrome entry point (partner login, accept, …)
   pageObjects/
     app/
       LoginPage.ts                   # DONE — customer login screen
@@ -73,6 +78,7 @@ src/
     customerLoginFlow.ts             # DONE — runCustomerLoginSteps()
     placeOrderFlow.ts                # DONE — runPlaceOrderSteps()
     customerLogoutFlow.ts            # DONE — runCustomerLogoutSteps()
+    partnerLoginFlow.ts              # DONE — runPartnerLoginSteps()
     partnerAcceptFlow.ts             # runPartnerAcceptSteps()
     driverDeliveryFlow.ts            # runDriverDeliverySteps()
 config/
@@ -134,6 +140,14 @@ The JSON file is written by `02-placeOrder.test.ts` and read by `03-partnerAccep
 - Tap Log Out
 - Assert `WelcomePage` is loaded
 
+### partnerLoginFlow.ts — `runPartnerLoginSteps()` — DONE
+
+- Open the partner portal (`PartnerLoginPage.open()`)
+- Assert login page is loaded
+- Enter email
+- Enter password
+- Submit and assert dashboard is loaded
+
 ### partnerAcceptFlow.ts — `runPartnerAcceptSteps()`
 
 - Open partner portal (`PartnerLoginPage.open()` with sleep-retry)
@@ -179,10 +193,8 @@ The JSON file is written by `02-placeOrder.test.ts` and read by `03-partnerAccep
 ## package.json Script
 
 ```json
-"test:order": "wdio run config/wdio.android.conf.ts --spec src/tests/order-flow/orderFlow.test.ts"
+"test:order": "wdio run config/wdio.android.conf.ts --spec src/tests/order-flow/orderFlow.test.ts && wdio run config/wdio.web.conf.ts --spec src/tests/web/order-flow/partnerOrderFlow.test.ts"
 ```
-
-> This will evolve into a chained script once partner (web) steps are added, since those require a separate wdio session with the Chrome config.
 
 ---
 

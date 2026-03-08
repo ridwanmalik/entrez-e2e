@@ -14,6 +14,12 @@ WebdriverIO v8 + Appium (Android) + Chrome (web). Use Yarn.
 
 ## Partner Portal (web)
 - Server sleeps — `open()` retries until `div.join-courier` appears
+- Always add an `after` hook to every web test:
+  ```ts
+  after(async () => {
+    await browser.pause(second(10))
+  })
+  ```
 
 ## Run
 - `yarn test:android` / `yarn test:web:partner` / `yarn report`
