@@ -2,8 +2,8 @@ import CustomerDrawerPage from "@/pageObjects/app/CustomerDrawerPage"
 import CustomerHomePage from "@/pageObjects/app/CustomerHomePage"
 import WelcomePage from "@/pageObjects/WelcomePage"
 
-export const runCustomerLogoutSteps = () => {
-  describe("Step 3 — Customer Logout", () => {
+export const runLogoutSteps = () => {
+  describe("Step 3 — Logout", () => {
     it("should tap the account tab to open the drawer", async () => {
       await CustomerHomePage.tapAccountTab()
     })
