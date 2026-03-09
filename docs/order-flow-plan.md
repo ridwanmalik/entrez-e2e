@@ -47,7 +47,7 @@ src/
   tests/
     order-flow/
       orderFlow.test.ts              # DONE — Android #1 (customer login, place order, logout)
-      driverOrderFlow.test.ts        # next — Android #2 (driver login, pickup, deliver)
+      driverOrderFlow.test.ts        # DONE — Android #2 (driver login, pickup, deliver)
     web/
       order-flow/
         partnerOrderFlow.test.ts     # DONE — Chrome (partner login, order board)
@@ -61,8 +61,9 @@ src/
       DriverSelectionPage.ts         # DONE — driver selection in checkout flow
       CheckoutPage.ts                # DONE — final checkout, place order, dismiss confirmation
       CustomerDrawerPage.ts          # DONE — left-side drawer, log out button
-      DriverLoginPage.ts             # driver login screen
-      DriverOrderPage.ts             # driver active delivery screen
+      DriverLoginPage.ts             # DONE — driver login screen
+      DriverHomePage.ts              # DONE — driver home, tap active order
+      DriverOrderPage.ts             # DONE — driver active delivery screen
     web/
       PartnerLoginPage.ts            # DONE — login form
       PartnerOrdersPage.ts           # DONE — order board, ready for process, ready for pickup
@@ -78,7 +79,8 @@ src/
     customerLogoutFlow.ts            # DONE — runCustomerLogoutSteps()
     partnerLoginFlow.ts              # DONE — runPartnerLoginSteps()
     partnerOrderBoardFlow.ts         # DONE — runPartnerOrderBoardSteps()
-    driverDeliveryFlow.ts            # next  — runDriverDeliverySteps()
+    driverLoginFlow.ts               # DONE — runDriverLoginSteps()
+    driverDeliveryFlow.ts            # DONE — runDriverDeliverySteps()
 config/
   wdio.android.conf.ts               # already exists — used for customer + driver steps
   wdio.web.conf.ts                   # already exists — used for partner step
@@ -154,13 +156,20 @@ The JSON file is written by `02-placeOrder.test.ts` and read by `03-partnerAccep
 - Wait 10 seconds for UI to update
 - Tap **Ready for Pickup** on the first order card
 
-### driverDeliveryFlow.ts — `runDriverDeliverySteps()` — next
+### driverLoginFlow.ts — `runDriverLoginSteps()` — DONE
 
-- Open driver app (`driverOrderFlow.test.ts` — Android #2 session)
-- Log in with driver credentials
-- Assert the pending order appears
-- Tap pickup / confirm
-- Tap delivered / confirm
+- Assert driver login screen is displayed
+- Enter email and password
+- Tap login, assert driver home screen is visible
+
+### driverDeliveryFlow.ts — `runDriverDeliverySteps()` — DONE
+
+- Tap the active order on `DriverHomePage` to open order details
+- Assert `DriverOrderPage` is loaded
+- Slide to start delivery
+- Wait 10 seconds, then slide to finish delivery
+- Assert "Good job! Order is delivered" popup is visible
+- Tap OK to dismiss
 
 ---
 
@@ -177,7 +186,8 @@ The JSON file is written by `02-placeOrder.test.ts` and read by `03-partnerAccep
 | `DriverSelectionPage`    | `isLoaded()`, `selectDriver()`, `tapConfirm()`                                                                                                    |
 | `CheckoutPage`           | `isLoaded()`, `tapPlaceOrder()`, `tapOk()`                                                                                                        |
 | `DriverLoginPage`        | email, password, submit, `login()`, `isLoggedIn()`                                                                                                |
-| `DriverOrderPage`        | active order card, pickup button, deliver button, status label, `confirmPickup()`, `confirmDelivered()`, `getStatus()`                            |
+| `DriverHomePage`         | active order list, `tapOrder()`                                                                                                                   |
+| `DriverOrderPage`        | order details, slide-to-start, slide-to-finish, success popup, `slideToStartDelivery()`, `slideToFinishDelivery()`, `isDeliverySuccessVisible()`, `tapOk()` |
 | `PartnerOrdersPage`      | `isLoaded()`, `open()`, `tapReadyForProcess()`, `tapReadyForPickup()`                                                                             |
 
 ---
@@ -196,14 +206,15 @@ Before implementation, confirm:
 
 - [x] Customer app credentials — in `customerData.ts`
 - [x] Partner portal credentials — `jubu700@gmail.com` in `partnerData.ts` (`qaOrderPartner`)
-- [ ] Driver app credentials (email + password)
-- [ ] Whether driver app is a separate APK or the same app with a role switch
+- [x] Driver app credentials — in `driverData.ts`
+- [x] Driver app confirmed — separate role, same APK with `qaDriver` credentials
 
 ---
 
-## Open Questions
+## Status
 
-1. Is state shared via a JSON file acceptable, or should it go through an API/DB query?
-2. Does the driver app require a different device/emulator, or the same one (sequential)?
-3. Should the three wdio sessions run on the same physical device or can Android tests reuse the same UDID?
-4. Should failed intermediate steps halt the whole chain (`set -e` in shell) or should later steps still attempt to run?
+**All tasks complete.** The full order flow E2E test is implemented across all three sessions:
+
+- [x] Customer Android session — login, place order, logout
+- [x] Partner Chrome session — login, accept order (ready for process → ready for pickup)
+- [x] Driver Android session — login, pickup, deliver, logout
