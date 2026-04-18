@@ -17,6 +17,7 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocola
 ```
 
 Close and reopen PowerShell as Administrator, then verify:
+
 ```powershell
 choco --version
 ```
@@ -32,10 +33,12 @@ choco install -y nodejs-lts microsoft-openjdk17
 ```
 
 This installs:
+
 - **Node.js LTS** — also sets up `npm` automatically
 - **Microsoft OpenJDK 17** — also sets `JAVA_HOME` automatically
 
 Close and reopen your terminal, then verify:
+
 ```cmd
 node --version
 java -version
@@ -43,6 +46,7 @@ echo %JAVA_HOME%
 ```
 
 Then install Yarn globally:
+
 ```cmd
 npm install -g yarn
 yarn --version
@@ -74,6 +78,7 @@ yarn --version
    - Value: your SDK path from above
 
    **Edit Path, add these entries:**
+
    ```
    %ANDROID_HOME%\platform-tools
    %ANDROID_HOME%\emulator
@@ -82,6 +87,7 @@ yarn --version
    ```
 
 6. Restart your terminal, then verify:
+
 ```cmd
 adb version
 ```
@@ -91,6 +97,7 @@ adb version
 ### 1.4 — Install Allure CLI (for reports)
 
 Install Scoop (a Windows package manager), then use it to install Allure. Run in **PowerShell**:
+
 ```powershell
 Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 irm get.scoop.sh | iex
@@ -98,6 +105,7 @@ scoop install allure
 ```
 
 Verify:
+
 ```cmd
 allure --version
 ```
@@ -113,6 +121,7 @@ The Android emulator requires hardware acceleration:
 3. Save and reboot
 
 Then in Windows:
+
 - Press `Win + S` → **"Turn Windows features on or off"**
 - Check **Hyper-V** (all sub-items) and **Virtual Machine Platform**
 - Click OK and restart
@@ -128,11 +137,13 @@ Then in Windows:
 3. Select system image: **API 33, x86_64** (download if needed) → Next → Finish
 
 Start it from the terminal:
+
 ```cmd
 emulator -avd Pixel_6_API_33
 ```
 
 Wait for the home screen to appear, then verify:
+
 ```cmd
 adb devices
 :: Should show: emulator-5554   device
@@ -145,6 +156,7 @@ adb devices
    - Enable **USB Debugging**
 3. Connect via USB cable and accept the prompt on the phone
 4. Verify:
+
 ```cmd
 adb devices
 :: Should show: ABC123DEF456   device
@@ -159,6 +171,7 @@ Note the UDID — you will need it later.
 ### 3.1 — Create the Folder Structure
 
 Open Command Prompt:
+
 ```cmd
 mkdir my-e2e-project
 cd my-e2e-project
@@ -174,6 +187,7 @@ mkdir docs
 ```
 
 Create placeholder files to preserve empty folders in git:
+
 ```cmd
 type nul > apps\.gitkeep
 type nul > reports\screenshots\.gitkeep
@@ -222,6 +236,7 @@ npx appium driver install uiautomator2
 ```
 
 Verify:
+
 ```cmd
 npx appium driver list --installed
 ```
@@ -251,6 +266,7 @@ Open `package.json` and replace the `"scripts"` section with:
 ```
 
 Also add a Node.js engine requirement alongside `"scripts"`:
+
 ```json
 "engines": {
   "node": ">=18.0.0"
@@ -294,63 +310,63 @@ Create `tsconfig.json` at the project root:
 ### 4.3 — `config/wdio.conf.ts` (base config)
 
 ```typescript
-import path from 'path';
-import dotenv from 'dotenv';
-import moment from 'moment';
+import path from "path"
+import dotenv from "dotenv"
+import moment from "moment"
 
-dotenv.config();
+dotenv.config()
 
 export const config: WebdriverIO.Config = {
-  runner: 'local',
+  runner: "local",
 
   autoCompileOpts: {
     autoCompile: true,
     tsNodeOpts: {
-      project: path.join(__dirname, '../tsconfig.json'),
+      project: path.join(__dirname, "../tsconfig.json"),
       transpileOnly: true,
-      require: ['tsconfig-paths/register'],
+      require: ["tsconfig-paths/register"],
     } as any,
   },
 
-  hostname: process.env.APPIUM_HOST || 'localhost',
-  port: parseInt(process.env.APPIUM_PORT || '4723', 10),
-  path: '/',
+  hostname: process.env.APPIUM_HOST || "localhost",
+  port: parseInt(process.env.APPIUM_PORT || "4723", 10),
+  path: "/",
 
-  specs: [path.join(__dirname, '../src/tests/**/*.test.ts')],
+  specs: [path.join(__dirname, "../src/tests/**/*.test.ts")],
   exclude: [],
 
   maxInstances: 1,
   capabilities: [],
 
-  logLevel: 'warn',
+  logLevel: "warn",
   bail: 0,
 
-  waitforTimeout: parseInt(process.env.EXPLICIT_WAIT_MS || '30000', 10),
+  waitforTimeout: parseInt(process.env.EXPLICIT_WAIT_MS || "30000", 10),
   connectionRetryTimeout: 180000,
   connectionRetryCount: 3,
 
   services: [
     [
-      'appium',
+      "appium",
       {
-        command: path.resolve(__dirname, '../node_modules/.bin/appium'),
+        command: path.resolve(__dirname, "../node_modules/.bin/appium"),
         args: {
           relaxedSecurity: true,
-          log: './appium.log',
-          logLevel: 'info:debug',
+          log: "./appium.log",
+          logLevel: "info:debug",
         },
       },
     ],
   ],
 
-  framework: 'mocha',
+  framework: "mocha",
 
   reporters: [
-    'spec',
+    "spec",
     [
-      'allure',
+      "allure",
       {
-        outputDir: 'reports/allure-results',
+        outputDir: "reports/allure-results",
         disableWebdriverStepsReporting: true,
         disableWebdriverScreenshotsReporting: false,
         useCucumberStepReporter: false,
@@ -359,25 +375,25 @@ export const config: WebdriverIO.Config = {
   ],
 
   mochaOpts: {
-    ui: 'bdd',
+    ui: "bdd",
     timeout: 120000,
-    require: [require.resolve('tsconfig-paths/register')],
+    require: [require.resolve("tsconfig-paths/register")],
   },
 
   afterTest: async (test, _context, { error }) => {
     if (error) {
-      const safeName = test.title.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_-]/g, '');
-      const timestamp = moment().format('YYYYMMDD_HHmmss');
-      const screenshotPath = `reports/screenshots/${safeName}_${timestamp}.png`;
+      const safeName = test.title.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_-]/g, "")
+      const timestamp = moment().format("YYYYMMDD_HHmmss")
+      const screenshotPath = `reports/screenshots/${safeName}_${timestamp}.png`
       try {
-        await driver.saveScreenshot(screenshotPath);
-        console.info(`[WDIO] Failure screenshot saved → ${screenshotPath}`);
+        await driver.saveScreenshot(screenshotPath)
+        console.info(`[WDIO] Failure screenshot saved → ${screenshotPath}`)
       } catch (screenshotErr: any) {
-        console.warn('[WDIO] Could not capture failure screenshot:', screenshotErr.message);
+        console.warn("[WDIO] Could not capture failure screenshot:", screenshotErr.message)
       }
     }
   },
-};
+}
 ```
 
 ---
@@ -385,42 +401,42 @@ export const config: WebdriverIO.Config = {
 ### 4.4 — `config/wdio.android.conf.ts` (Android capabilities)
 
 ```typescript
-import dotenv from 'dotenv';
-import path from 'path';
+import dotenv from "dotenv"
+import path from "path"
 
-dotenv.config();
+dotenv.config()
 
-import { config } from './wdio.conf';
+import { config } from "./wdio.conf"
 
 config.capabilities = [
   {
-    platformName: 'Android',
-    'appium:automationName': 'UiAutomator2',
+    platformName: "Android",
+    "appium:automationName": "UiAutomator2",
 
-    'appium:deviceName': process.env.ANDROID_DEVICE_NAME || 'Android Device',
-    'appium:udid': process.env.ANDROID_UDID || undefined,
-    'appium:platformVersion': process.env.ANDROID_PLATFORM_VERSION || '',
+    "appium:deviceName": process.env.ANDROID_DEVICE_NAME || "Android Device",
+    "appium:udid": process.env.ANDROID_UDID || undefined,
+    "appium:platformVersion": process.env.ANDROID_PLATFORM_VERSION || "",
 
-    ...(process.env.APP_PATH ? { 'appium:app': path.resolve(process.env.APP_PATH) } : {}),
-    'appium:appPackage': process.env.APP_PACKAGE || 'com.yourapp.package',
-    'appium:appActivity': process.env.APP_ACTIVITY || '.MainActivity',
+    ...(process.env.APP_PATH ? { "appium:app": path.resolve(process.env.APP_PATH) } : {}),
+    "appium:appPackage": process.env.APP_PACKAGE || "com.yourapp.package",
+    "appium:appActivity": process.env.APP_ACTIVITY || ".MainActivity",
 
-    'appium:noReset': !process.env.APP_PATH,
-    'appium:fullReset': false,
-    'appium:forceAppLaunch': true,
-    'appium:newCommandTimeout': 240,
+    "appium:noReset": !process.env.APP_PATH,
+    "appium:fullReset": false,
+    "appium:forceAppLaunch": true,
+    "appium:newCommandTimeout": 240,
 
-    'appium:autoGrantPermissions': true,
-    'appium:disableWindowAnimation': true,
+    "appium:autoGrantPermissions": true,
+    "appium:disableWindowAnimation": true,
 
-    'appium:uiautomator2ServerLaunchTimeout': 60000,
-    'appium:uiautomator2ServerInstallTimeout': 60000,
+    "appium:uiautomator2ServerLaunchTimeout": 60000,
+    "appium:uiautomator2ServerInstallTimeout": 60000,
 
-    'appium:ignoreHiddenApiPolicyError': true,
+    "appium:ignoreHiddenApiPolicyError": true,
   },
-];
+]
 
-export { config };
+export { config }
 ```
 
 ---
@@ -449,6 +465,7 @@ EXPLICIT_WAIT_MS=30000
 ```
 
 Then copy it to create your actual config:
+
 ```cmd
 copy .env.example .env
 ```
@@ -493,109 +510,109 @@ Thumbs.db
 The base class that all page objects extend. Contains all reusable Appium interaction methods.
 
 ```typescript
-import moment from 'moment';
+import moment from "moment"
 
-const DEFAULT_TIMEOUT = parseInt(process.env.EXPLICIT_WAIT_MS || '30000', 10);
+const DEFAULT_TIMEOUT = parseInt(process.env.EXPLICIT_WAIT_MS || "30000", 10)
 
 export class BasePage {
   async waitForElement(selector: string, timeout: number = DEFAULT_TIMEOUT): Promise<WebdriverIO.Element> {
-    const element = await $(selector);
+    const element = await $(selector)
     await element.waitForDisplayed({
       timeout,
       timeoutMsg: `[BasePage] Element "${selector}" not visible after ${timeout}ms`,
-    });
-    return element;
+    })
+    return element
   }
 
   async waitForElementExist(selector: string, timeout: number = DEFAULT_TIMEOUT): Promise<WebdriverIO.Element> {
-    const element = await $(selector);
+    const element = await $(selector)
     await element.waitForExist({
       timeout,
       timeoutMsg: `[BasePage] Element "${selector}" not in DOM after ${timeout}ms`,
-    });
-    return element;
+    })
+    return element
   }
 
   async tap(selector: string, timeout: number = DEFAULT_TIMEOUT): Promise<void> {
-    const element = await this.waitForElement(selector, timeout);
-    await element.click();
+    const element = await this.waitForElement(selector, timeout)
+    await element.click()
   }
 
   async setField(selector: string, value: string, timeout: number = DEFAULT_TIMEOUT): Promise<void> {
-    const element = await this.waitForElement(selector, timeout);
-    await element.click();
-    await driver.execute('mobile: type', { text: String(value) });
+    const element = await this.waitForElement(selector, timeout)
+    await element.click()
+    await driver.execute("mobile: type", { text: String(value) })
   }
 
   async looseFocus(): Promise<void> {
-    const { width, height } = await driver.getWindowSize();
-    await driver.execute('mobile: clickGesture', {
+    const { width, height } = await driver.getWindowSize()
+    await driver.execute("mobile: clickGesture", {
       x: Math.floor(width / 2),
       y: Math.floor(height * 0.05),
-    });
+    })
   }
 
   async getText(selector: string, timeout: number = DEFAULT_TIMEOUT): Promise<string> {
-    const element = await this.waitForElement(selector, timeout);
-    return element.getText();
+    const element = await this.waitForElement(selector, timeout)
+    return element.getText()
   }
 
   async isDisplayed(selector: string, timeout: number = DEFAULT_TIMEOUT): Promise<boolean> {
     try {
-      const element = await $(selector);
-      await element.waitForDisplayed({ timeout });
-      return true;
+      const element = await $(selector)
+      await element.waitForDisplayed({ timeout })
+      return true
     } catch {
-      return false;
+      return false
     }
   }
 
   async scrollDown(percent: number = 1.0): Promise<void> {
-    const { width, height } = await driver.getWindowSize();
-    await driver.execute('mobile: scrollGesture', {
+    const { width, height } = await driver.getWindowSize()
+    await driver.execute("mobile: scrollGesture", {
       left: 0,
       top: Math.round(height * 0.25),
       width,
       height: Math.round(height * 0.5),
-      direction: 'down',
+      direction: "down",
       percent,
-    });
+    })
   }
 
   async scrollUp(percent: number = 1.0): Promise<void> {
-    const { width, height } = await driver.getWindowSize();
-    await driver.execute('mobile: scrollGesture', {
+    const { width, height } = await driver.getWindowSize()
+    await driver.execute("mobile: scrollGesture", {
       left: 0,
       top: Math.round(height * 0.25),
       width,
       height: Math.round(height * 0.5),
-      direction: 'up',
+      direction: "up",
       percent,
-    });
+    })
   }
 
   async waitForLoaderToDisappear(
-    loaderSelector: string = '~loading_indicator',
+    loaderSelector: string = "~loading_indicator",
     timeout: number = DEFAULT_TIMEOUT
   ): Promise<void> {
     try {
-      const loader = await $(loaderSelector);
-      await loader.waitForDisplayed({ timeout: 3000 });
+      const loader = await $(loaderSelector)
+      await loader.waitForDisplayed({ timeout: 3000 })
       await loader.waitForDisplayed({
         timeout,
         reverse: true,
         timeoutMsg: `[BasePage] Loader "${loaderSelector}" still visible after ${timeout}ms`,
-      });
+      })
     } catch {
       // Loader did not appear or already gone — continue
     }
   }
 
   async takeScreenshot(name: string): Promise<string> {
-    const safeName = name.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_-]/g, '');
-    const filePath = `reports/screenshots/${safeName}_${moment().format('YYYYMMDD_HHmmss')}.png`;
-    await driver.saveScreenshot(filePath);
-    return filePath;
+    const safeName = name.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_-]/g, "")
+    const filePath = `reports/screenshots/${safeName}_${moment().format("YYYYMMDD_HHmmss")}.png`
+    await driver.saveScreenshot(filePath)
+    return filePath
   }
 }
 ```
@@ -605,23 +622,23 @@ export class BasePage {
 ### 5.2 — `src/pageObjects/WelcomePage.ts`
 
 ```typescript
-import { BasePage } from './base/BasePage';
+import { BasePage } from "./base/BasePage"
 
 class WelcomePage extends BasePage {
   get createAccountButton(): string {
-    return '//android.widget.Button[@content-desc="CREATE ACCOUNT"]';
+    return '//android.widget.Button[@content-desc="CREATE ACCOUNT"]'
   }
 
   async isLoaded(): Promise<boolean> {
-    return this.isDisplayed(this.createAccountButton, 20000);
+    return this.isDisplayed(this.createAccountButton, 20000)
   }
 
   async tapCreateAccount(): Promise<void> {
-    await this.tap(this.createAccountButton);
+    await this.tap(this.createAccountButton)
   }
 }
 
-export default new WelcomePage();
+export default new WelcomePage()
 ```
 
 > **Selector note:** `content-desc` values come from the Flutter app's `Semantics(label: '...')` annotations. Use `adb shell uiautomator dump` or Android Studio's Layout Inspector to find the right values for your app.
@@ -633,129 +650,213 @@ export default new WelcomePage();
 Adapt selectors to match your app's actual UI. The ones below match the current app under test.
 
 ```typescript
-import { Role } from '@/data/testData';
-import { second } from '@/helpers/utils';
-import moment from 'moment';
-import { BasePage } from './base/BasePage';
+import { Role } from "@/data/testData"
+import { second } from "@/helpers/utils"
+import moment from "moment"
+import { BasePage } from "./base/BasePage"
 
 class RegistrationPage extends BasePage {
-  get screenTitle(): string { return '~CREATE ACCOUNT'; }
-  get clientRole(): string { return '//android.widget.ImageView[@content-desc="Client"]'; }
-  get serviceRole(): string { return '//android.widget.ImageView[@content-desc="Service"]'; }
-  get firstNameInput(): string { return 'android=new UiSelector().className("android.widget.EditText").instance(0)'; }
-  get lastNameInput(): string { return 'android=new UiSelector().className("android.widget.EditText").instance(1)'; }
-  get phoneInput(): string { return 'android=new UiSelector().className("android.widget.EditText").instance(2)'; }
-  get emailInput(): string { return 'android=new UiSelector().className("android.widget.EditText").instance(3)'; }
-  get emailInScrollView(): string { return 'android=new UiSelector().className("android.widget.EditText").instance(1)'; }
-  get pinInput(): string { return 'android=new UiSelector().className("android.widget.EditText").instance(0)'; }
-  get confirmPinInput(): string { return 'android=new UiSelector().className("android.widget.EditText").instance(1)'; }
-  get confirmPinInputInScrollView(): string { return 'android=new UiSelector().className("android.widget.EditText")'; }
-  get streetInput(): string { return 'android=new UiSelector().className("android.widget.EditText").instance(0)'; }
-  get additionalAddressInput(): string { return 'android=new UiSelector().className("android.widget.EditText").instance(1)'; }
-  get additionalAddressInputInScrollView(): string { return 'android=new UiSelector().className("android.widget.EditText").instance(0)'; }
-  get cityInput(): string { return 'android=new UiSelector().className("android.widget.EditText").instance(2)'; }
-  get postalCodeInput(): string { return 'android=new UiSelector().className("android.widget.EditText").instance(3)'; }
-  get postalCodeInputInScrollView(): string { return 'android=new UiSelector().className("android.widget.EditText").instance(0)'; }
-  get dateOfBirthTrigger(): string { return 'android=new UiSelector().className("android.view.View").instance(17)'; }
-  get datePickerDay(): string { return 'android=new UiSelector().className("android.widget.SeekBar").instance(0)'; }
-  get datePickerMonth(): string { return 'android=new UiSelector().className("android.widget.SeekBar").instance(1)'; }
-  get datePickerYear(): string { return 'android=new UiSelector().className("android.widget.SeekBar").instance(2)'; }
-  get datePickerOk(): string { return '~OK'; }
-  get nextButton(): string { return '(//android.widget.ImageView[@clickable="true" and not(@content-desc)])[last()]'; }
-  get accountNumberInput(): string { return 'android=new UiSelector().className("android.widget.EditText")'; }
-  get createAccountButton(): string { return '//android.widget.Button[@content-desc="Create Account"]'; }
-  get registrationSuccessDialog(): string { return '//android.view.View[@content-desc="Registration Successful"]'; }
-  get okButton(): string { return '//android.widget.Button[@content-desc="OK"]'; }
-  get prevButton(): string { return '(//android.widget.ImageView[@clickable="true" and not(@content-desc)])[1]'; }
+  get screenTitle(): string {
+    return "~CREATE ACCOUNT"
+  }
+  get clientRole(): string {
+    return '//android.widget.ImageView[@content-desc="Client"]'
+  }
+  get serviceRole(): string {
+    return '//android.widget.ImageView[@content-desc="Service"]'
+  }
+  get firstNameInput(): string {
+    return 'android=new UiSelector().className("android.widget.EditText").instance(0)'
+  }
+  get lastNameInput(): string {
+    return 'android=new UiSelector().className("android.widget.EditText").instance(1)'
+  }
+  get phoneInput(): string {
+    return 'android=new UiSelector().className("android.widget.EditText").instance(2)'
+  }
+  get emailInput(): string {
+    return 'android=new UiSelector().className("android.widget.EditText").instance(3)'
+  }
+  get emailInScrollView(): string {
+    return 'android=new UiSelector().className("android.widget.EditText").instance(1)'
+  }
+  get pinInput(): string {
+    return 'android=new UiSelector().className("android.widget.EditText").instance(0)'
+  }
+  get confirmPinInput(): string {
+    return 'android=new UiSelector().className("android.widget.EditText").instance(1)'
+  }
+  get confirmPinInputInScrollView(): string {
+    return 'android=new UiSelector().className("android.widget.EditText")'
+  }
+  get streetInput(): string {
+    return 'android=new UiSelector().className("android.widget.EditText").instance(0)'
+  }
+  get additionalAddressInput(): string {
+    return 'android=new UiSelector().className("android.widget.EditText").instance(1)'
+  }
+  get additionalAddressInputInScrollView(): string {
+    return 'android=new UiSelector().className("android.widget.EditText").instance(0)'
+  }
+  get cityInput(): string {
+    return 'android=new UiSelector().className("android.widget.EditText").instance(2)'
+  }
+  get postalCodeInput(): string {
+    return 'android=new UiSelector().className("android.widget.EditText").instance(3)'
+  }
+  get postalCodeInputInScrollView(): string {
+    return 'android=new UiSelector().className("android.widget.EditText").instance(0)'
+  }
+  get dateOfBirthTrigger(): string {
+    return 'android=new UiSelector().className("android.view.View").instance(17)'
+  }
+  get datePickerDay(): string {
+    return 'android=new UiSelector().className("android.widget.SeekBar").instance(0)'
+  }
+  get datePickerMonth(): string {
+    return 'android=new UiSelector().className("android.widget.SeekBar").instance(1)'
+  }
+  get datePickerYear(): string {
+    return 'android=new UiSelector().className("android.widget.SeekBar").instance(2)'
+  }
+  get datePickerOk(): string {
+    return "~OK"
+  }
+  get nextButton(): string {
+    return '(//android.widget.ImageView[@clickable="true" and not(@content-desc)])[last()]'
+  }
+  get accountNumberInput(): string {
+    return 'android=new UiSelector().className("android.widget.EditText")'
+  }
+  get createAccountButton(): string {
+    return '//android.widget.Button[@content-desc="Create Account"]'
+  }
+  get registrationSuccessDialog(): string {
+    return '//android.view.View[@content-desc="Registration Successful"]'
+  }
+  get okButton(): string {
+    return '//android.widget.Button[@content-desc="OK"]'
+  }
+  get prevButton(): string {
+    return '(//android.widget.ImageView[@clickable="true" and not(@content-desc)])[1]'
+  }
 
   async isLoaded(): Promise<boolean> {
-    return this.isDisplayed(this.clientRole, 15000);
+    return this.isDisplayed(this.clientRole, 15000)
   }
 
   async looseFocusFormPhone(): Promise<void> {
-    await this.tap(this.emailInput);
+    await this.tap(this.emailInput)
   }
 
   async selectRole(role: Role = Role.Client): Promise<void> {
-    await this.tap(role === Role.Client ? this.clientRole : this.serviceRole);
+    await this.tap(role === Role.Client ? this.clientRole : this.serviceRole)
   }
 
-  async enterFirstName(name: string): Promise<void> { await this.setField(this.firstNameInput, name); }
-  async enterLastName(name: string): Promise<void> { await this.setField(this.lastNameInput, name); }
-  async enterPhone(phone: string): Promise<void> { await this.setField(this.phoneInput, phone); }
+  async enterFirstName(name: string): Promise<void> {
+    await this.setField(this.firstNameInput, name)
+  }
+  async enterLastName(name: string): Promise<void> {
+    await this.setField(this.lastNameInput, name)
+  }
+  async enterPhone(phone: string): Promise<void> {
+    await this.setField(this.phoneInput, phone)
+  }
 
   async enterEmail(email: string): Promise<void> {
     try {
-      await this.setField(this.emailInput, email, second(1));
+      await this.setField(this.emailInput, email, second(1))
     } catch {
-      await this.setField(this.emailInScrollView, email);
+      await this.setField(this.emailInScrollView, email)
     }
   }
 
   async enterDateOfBirth(dateStr: string): Promise<void> {
-    await this.tap(this.dateOfBirthTrigger);
-    const date = moment(dateStr, 'DD/MM/YYYY');
-    const day = date.date();
-    const month = date.month() + 1;
-    const year = date.year();
-    const curDay = parseInt(await $(this.datePickerDay).getAttribute('content-desc'));
-    const curMonth = moment().month(await $(this.datePickerMonth).getAttribute('content-desc')).month() + 1;
-    const curYear = parseInt(await $(this.datePickerYear).getAttribute('content-desc'));
-    await this._scrollPickerTo(this.datePickerYear, curYear, year);
-    await this._scrollPickerTo(this.datePickerMonth, curMonth, month);
-    await this._scrollPickerTo(this.datePickerDay, curDay, day);
-    await this.tap(this.datePickerOk);
+    await this.tap(this.dateOfBirthTrigger)
+    const date = moment(dateStr, "DD/MM/YYYY")
+    const day = date.date()
+    const month = date.month() + 1
+    const year = date.year()
+    const curDay = parseInt(await $(this.datePickerDay).getAttribute("content-desc"))
+    const curMonth =
+      moment()
+        .month(await $(this.datePickerMonth).getAttribute("content-desc"))
+        .month() + 1
+    const curYear = parseInt(await $(this.datePickerYear).getAttribute("content-desc"))
+    await this._scrollPickerTo(this.datePickerYear, curYear, year)
+    await this._scrollPickerTo(this.datePickerMonth, curMonth, month)
+    await this._scrollPickerTo(this.datePickerDay, curDay, day)
+    await this.tap(this.datePickerOk)
   }
 
   async _scrollPickerTo(selector: string, from: number, to: number): Promise<void> {
-    if (from === to) return;
-    const el = await $(selector);
-    const { x, y } = await el.getLocation();
-    const { width, height } = await el.getSize();
-    const direction = to > from ? 'up' : 'down';
-    const steps = Math.abs(to - from);
+    if (from === to) return
+    const el = await $(selector)
+    const { x, y } = await el.getLocation()
+    const { width, height } = await el.getSize()
+    const direction = to > from ? "up" : "down"
+    const steps = Math.abs(to - from)
     for (let i = 0; i < steps; i++) {
-      await driver.execute('mobile: swipeGesture', { left: x, top: y, width, height: height - 2, direction, percent: 0.3 });
-      await driver.pause(100);
+      await driver.execute("mobile: swipeGesture", {
+        left: x,
+        top: y,
+        width,
+        height: height - 2,
+        direction,
+        percent: 0.3,
+      })
+      await driver.pause(100)
     }
   }
 
-  async enterPin(pin: string): Promise<void> { await this.setField(this.pinInput, pin); }
+  async enterPin(pin: string): Promise<void> {
+    await this.setField(this.pinInput, pin)
+  }
 
   async confirmPin(pin: string): Promise<void> {
     try {
-      await this.setField(this.confirmPinInput, pin, second(1));
+      await this.setField(this.confirmPinInput, pin, second(1))
     } catch {
-      await this.setField(this.confirmPinInputInScrollView, pin);
+      await this.setField(this.confirmPinInputInScrollView, pin)
     }
   }
 
-  async enterStreet(street: string): Promise<void> { await this.setField(this.streetInput, street); }
+  async enterStreet(street: string): Promise<void> {
+    await this.setField(this.streetInput, street)
+  }
 
   async enterAdditionalAddress(additional: string): Promise<void> {
     try {
-      await this.setField(this.additionalAddressInput, additional, second(1));
+      await this.setField(this.additionalAddressInput, additional, second(1))
     } catch {
-      await this.setField(this.additionalAddressInputInScrollView, additional);
+      await this.setField(this.additionalAddressInputInScrollView, additional)
     }
   }
 
-  async enterCity(city: string): Promise<void> { await this.setField(this.cityInput, city); }
+  async enterCity(city: string): Promise<void> {
+    await this.setField(this.cityInput, city)
+  }
 
   async enterPostalCode(postalCode: string): Promise<void> {
     try {
-      await this.setField(this.postalCodeInput, postalCode, second(1));
+      await this.setField(this.postalCodeInput, postalCode, second(1))
     } catch {
-      await this.setField(this.postalCodeInputInScrollView, postalCode);
+      await this.setField(this.postalCodeInputInScrollView, postalCode)
     }
   }
 
-  async tapNext(): Promise<void> { await this.tap(this.nextButton); }
-  async enterAccountNumber(accountNumber: string): Promise<void> { await this.setField(this.accountNumberInput, accountNumber); }
-  async tapCreateAccount(): Promise<void> { await this.tap(this.createAccountButton); }
+  async tapNext(): Promise<void> {
+    await this.tap(this.nextButton)
+  }
+  async enterAccountNumber(accountNumber: string): Promise<void> {
+    await this.setField(this.accountNumberInput, accountNumber)
+  }
+  async tapCreateAccount(): Promise<void> {
+    await this.tap(this.createAccountButton)
+  }
 }
 
-export default new RegistrationPage();
+export default new RegistrationPage()
 ```
 
 ---
@@ -763,55 +864,53 @@ export default new RegistrationPage();
 ### 5.4 — `src/helpers/utils.ts`
 
 ```typescript
-import moment from 'moment';
+import moment from "moment"
 
 export interface FinnishAddress {
-  street: string;
-  city: string;
-  postalCode: string;
+  street: string
+  city: string
+  postalCode: string
 }
 
 const FINNISH_ADDRESSES: FinnishAddress[] = [
-  { street: 'Kolmas linja 17', city: 'Helsinki', postalCode: '00530' },
-  { street: 'Kolmas linja 18', city: 'Helsinki', postalCode: '00530' },
-  { street: 'Kalervonkatu 5',  city: 'Helsinki', postalCode: '00610' },
-  { street: 'Harjutori 8',     city: 'Helsinki', postalCode: '00500' },
-  { street: 'Ostostie 4',      city: 'Helsinki', postalCode: '00940' },
-  { street: 'Aurakatu 6',      city: 'Turku',    postalCode: '20100' },
-  { street: 'Yliopistonkatu 22', city: 'Turku',  postalCode: '20100' },
-];
+  { street: "Kolmas linja 17", city: "Helsinki", postalCode: "00530" },
+  { street: "Kolmas linja 18", city: "Helsinki", postalCode: "00530" },
+  { street: "Kalervonkatu 5", city: "Helsinki", postalCode: "00610" },
+  { street: "Harjutori 8", city: "Helsinki", postalCode: "00500" },
+  { street: "Ostostie 4", city: "Helsinki", postalCode: "00940" },
+]
 
 export const generateFinnishAddress = (): FinnishAddress =>
-  FINNISH_ADDRESSES[Math.floor(Math.random() * FINNISH_ADDRESSES.length)];
+  FINNISH_ADDRESSES[Math.floor(Math.random() * FINNISH_ADDRESSES.length)]
 
 export const generateUniqueEmail = (): string => {
-  const ts = moment().format('HHmmss');
-  return `qa${ts}@example.com`;
-};
+  const ts = moment().format("HHmmss")
+  return `qa${ts}@example.com`
+}
 
 export const generatePhoneNumber = (): string => {
-  const mid = Math.floor(Math.random() * 11) + 40;
-  const suffix = Math.floor(Math.random() * 9000000) + 1000000;
-  return `358${mid}${suffix}`;
-};
+  const mid = Math.floor(Math.random() * 11) + 40
+  const suffix = Math.floor(Math.random() * 9000000) + 1000000
+  return `358${mid}${suffix}`
+}
 
-export const pause = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
+export const pause = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms))
 
 export const retry = async <T>(fn: () => Promise<T>, retries = 3, delayMs = 1000): Promise<T> => {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      return await fn();
+      return await fn()
     } catch (err: unknown) {
-      if (attempt === retries) throw err;
-      const message = err instanceof Error ? err.message : String(err);
-      console.warn(`[retry] Attempt ${attempt}/${retries} failed: ${message}. Retrying in ${delayMs}ms…`);
-      await pause(delayMs);
+      if (attempt === retries) throw err
+      const message = err instanceof Error ? err.message : String(err)
+      console.warn(`[retry] Attempt ${attempt}/${retries} failed: ${message}. Retrying in ${delayMs}ms…`)
+      await pause(delayMs)
     }
   }
-  throw new Error('retry: exhausted retries');
-};
+  throw new Error("retry: exhausted retries")
+}
 
-export const second = (s: number): number => s * 1000;
+export const second = (s: number): number => s * 1000
 ```
 
 ---
@@ -819,28 +918,28 @@ export const second = (s: number): number => s * 1000;
 ### 5.5 — `src/data/testData.ts`
 
 ```typescript
-import { generateFinnishAddress, generatePhoneNumber, generateUniqueEmail } from '@/helpers/utils';
-import { faker } from '@faker-js/faker';
-import moment from 'moment';
+import { generateFinnishAddress, generatePhoneNumber, generateUniqueEmail } from "@/helpers/utils"
+import { faker } from "@faker-js/faker"
+import moment from "moment"
 
 export enum Role {
-  Client = 'Client',
-  Service = 'Service',
+  Client = "Client",
+  Service = "Service",
 }
 
 export interface UserData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  dateOfBirth: string;
-  role: Role;
-  pin: string;
-  accountNumber: string;
-  street: string;
-  additionalAddress: string;
-  city: string;
-  postalCode: string;
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  dateOfBirth: string
+  role: Role
+  pin: string
+  accountNumber: string
+  street: string
+  additionalAddress: string
+  city: string
+  postalCode: string
 }
 
 export const validUser = (role: Role = Role.Client): UserData => ({
@@ -848,44 +947,44 @@ export const validUser = (role: Role = Role.Client): UserData => ({
   lastName: faker.person.lastName(),
   email: generateUniqueEmail(),
   phone: generatePhoneNumber(),
-  dateOfBirth: moment(faker.date.birthdate({ min: 18, max: 60, mode: 'age' })).format('DD/MM/YYYY'),
+  dateOfBirth: moment(faker.date.birthdate({ min: 18, max: 60, mode: "age" })).format("DD/MM/YYYY"),
   role,
-  pin: 'Test7@',
-  accountNumber: faker.finance.iban({ countryCode: 'FI' }),
+  pin: "Test7@",
+  accountNumber: faker.finance.iban({ countryCode: "FI" }),
   ...generateFinnishAddress(),
-  additionalAddress: '',
-});
+  additionalAddress: "",
+})
 
 export const invalidUsers: Record<string, UserData> = {
   emptyEmail: {
-    firstName: 'Test',
-    lastName: 'User',
-    email: '',
-    phone: '+15551234567',
-    dateOfBirth: '01/01/1990',
+    firstName: "Test",
+    lastName: "User",
+    email: "",
+    phone: "+15551234567",
+    dateOfBirth: "01/01/1990",
     role: Role.Client,
-    pin: 'Test7@',
-    accountNumber: 'FI0000000000000000',
-    street: '123 Test St',
-    additionalAddress: '',
-    city: 'Testville',
-    postalCode: '00100',
+    pin: "Test7@",
+    accountNumber: "FI0000000000000000",
+    street: "123 Test St",
+    additionalAddress: "",
+    city: "Testville",
+    postalCode: "00100",
   },
   invalidEmailFormat: {
-    firstName: 'Test',
-    lastName: 'User',
-    email: 'not-a-valid-email',
-    phone: '+15551234567',
-    dateOfBirth: '01/01/1990',
+    firstName: "Test",
+    lastName: "User",
+    email: "not-a-valid-email",
+    phone: "+15551234567",
+    dateOfBirth: "01/01/1990",
     role: Role.Client,
-    pin: 'Test7@',
-    accountNumber: 'FI0000000000000000',
-    street: '123 Test St',
-    additionalAddress: '',
-    city: 'Testville',
-    postalCode: '00100',
+    pin: "Test7@",
+    accountNumber: "FI0000000000000000",
+    street: "123 Test St",
+    additionalAddress: "",
+    city: "Testville",
+    postalCode: "00100",
   },
-};
+}
 ```
 
 ---
@@ -895,53 +994,53 @@ export const invalidUsers: Record<string, UserData> = {
 Shared steps reused by both client and service test files.
 
 ```typescript
-import { UserData } from '@/data/testData';
-import { second } from '@/helpers/utils';
-import RegistrationPage from '@/pageObjects/RegistrationPage';
-import WelcomePage from '@/pageObjects/WelcomePage';
+import { UserData } from "@/data/testData"
+import { second } from "@/helpers/utils"
+import RegistrationPage from "@/pageObjects/RegistrationPage"
+import WelcomePage from "@/pageObjects/WelcomePage"
 
 export const runSharedRegistrationSteps = (user: UserData) => {
-  describe('Step 1 — Personal Details', () => {
-    it('should display the Welcome page on app launch', async () => {
-      expect(await WelcomePage.isLoaded()).toBe(true);
-    });
+  describe("Step 1 — Personal Details", () => {
+    it("should display the Welcome page on app launch", async () => {
+      expect(await WelcomePage.isLoaded()).toBe(true)
+    })
 
-    it('should navigate to Registration when Create Account is tapped', async () => {
-      await WelcomePage.tapCreateAccount();
-      expect(await RegistrationPage.isLoaded()).toBe(true);
-    });
+    it("should navigate to Registration when Create Account is tapped", async () => {
+      await WelcomePage.tapCreateAccount()
+      expect(await RegistrationPage.isLoaded()).toBe(true)
+    })
 
-    it('should select a role, fill all fields, and proceed to Step 2', async () => {
-      await RegistrationPage.selectRole(user.role);
-      await RegistrationPage.enterFirstName(user.firstName);
-      await RegistrationPage.enterLastName(user.lastName);
-      await RegistrationPage.enterPhone(user.phone);
-      await RegistrationPage.looseFocusFormPhone();
-      await driver.pause(second(3));
-      await RegistrationPage.enterEmail(user.email);
-      await RegistrationPage.enterDateOfBirth(user.dateOfBirth);
-      await RegistrationPage.tapNext();
-    });
-  });
+    it("should select a role, fill all fields, and proceed to Step 2", async () => {
+      await RegistrationPage.selectRole(user.role)
+      await RegistrationPage.enterFirstName(user.firstName)
+      await RegistrationPage.enterLastName(user.lastName)
+      await RegistrationPage.enterPhone(user.phone)
+      await RegistrationPage.looseFocusFormPhone()
+      await driver.pause(second(3))
+      await RegistrationPage.enterEmail(user.email)
+      await RegistrationPage.enterDateOfBirth(user.dateOfBirth)
+      await RegistrationPage.tapNext()
+    })
+  })
 
-  describe('Step 2 — PIN', () => {
-    it('should enter and confirm PIN then proceed to Step 3', async () => {
-      await RegistrationPage.enterPin(user.pin);
-      await driver.pause(second(3));
-      await RegistrationPage.confirmPin(user.pin);
-      await RegistrationPage.tapNext();
-    });
-  });
+  describe("Step 2 — PIN", () => {
+    it("should enter and confirm PIN then proceed to Step 3", async () => {
+      await RegistrationPage.enterPin(user.pin)
+      await driver.pause(second(3))
+      await RegistrationPage.confirmPin(user.pin)
+      await RegistrationPage.tapNext()
+    })
+  })
 
-  describe('Step 3 — Address', () => {
-    it('should fill address fields and proceed to Step 4', async () => {
-      await RegistrationPage.enterStreet(user.street);
-      await RegistrationPage.enterCity(user.city);
-      await RegistrationPage.enterPostalCode(user.postalCode);
-      await RegistrationPage.tapNext();
-    });
-  });
-};
+  describe("Step 3 — Address", () => {
+    it("should fill address fields and proceed to Step 4", async () => {
+      await RegistrationPage.enterStreet(user.street)
+      await RegistrationPage.enterCity(user.city)
+      await RegistrationPage.enterPostalCode(user.postalCode)
+      await RegistrationPage.tapNext()
+    })
+  })
+}
 ```
 
 ---
@@ -949,29 +1048,29 @@ export const runSharedRegistrationSteps = (user: UserData) => {
 ### 5.7 — `src/tests/registration/clientRegistration.test.ts`
 
 ```typescript
-import { Role, validUser } from '@/data/testData';
-import { runSharedRegistrationSteps } from '@/helpers/registrationFlow';
-import RegistrationPage from '@/pageObjects/RegistrationPage';
+import { Role, validUser } from "@/data/testData"
+import { runSharedRegistrationSteps } from "@/helpers/registrationFlow"
+import RegistrationPage from "@/pageObjects/RegistrationPage"
 
-describe('Client Registration', () => {
-  const user = validUser(Role.Client);
+describe("Client Registration", () => {
+  const user = validUser(Role.Client)
 
-  runSharedRegistrationSteps(user);
+  runSharedRegistrationSteps(user)
 
-  describe('Step 4 — Card Info', () => {
-    it('should proceed with pre-filled test card info', async () => {
-      await RegistrationPage.tapNext();
-    });
-  });
+  describe("Step 4 — Card Info", () => {
+    it("should proceed with pre-filled test card info", async () => {
+      await RegistrationPage.tapNext()
+    })
+  })
 
-  describe('Step 5 — Submit', () => {
-    it('should tap Create Account, see success dialog, and dismiss it', async () => {
-      await RegistrationPage.tapCreateAccount();
-      expect(await RegistrationPage.isDisplayed(RegistrationPage.registrationSuccessDialog, 30000)).toBe(true);
-      await RegistrationPage.tap(RegistrationPage.okButton);
-    });
-  });
-});
+  describe("Step 5 — Submit", () => {
+    it("should tap Create Account, see success dialog, and dismiss it", async () => {
+      await RegistrationPage.tapCreateAccount()
+      expect(await RegistrationPage.isDisplayed(RegistrationPage.registrationSuccessDialog, 30000)).toBe(true)
+      await RegistrationPage.tap(RegistrationPage.okButton)
+    })
+  })
+})
 ```
 
 ---
@@ -979,36 +1078,36 @@ describe('Client Registration', () => {
 ### 5.8 — `src/tests/registration/serviceRegistration.test.ts`
 
 ```typescript
-import { Role, validUser } from '@/data/testData';
-import { runSharedRegistrationSteps } from '@/helpers/registrationFlow';
-import RegistrationPage from '@/pageObjects/RegistrationPage';
+import { Role, validUser } from "@/data/testData"
+import { runSharedRegistrationSteps } from "@/helpers/registrationFlow"
+import RegistrationPage from "@/pageObjects/RegistrationPage"
 
-describe('Service Registration', () => {
-  const user = validUser(Role.Service);
+describe("Service Registration", () => {
+  const user = validUser(Role.Service)
 
-  runSharedRegistrationSteps(user);
+  runSharedRegistrationSteps(user)
 
-  describe('Step 4 — Bank Account', () => {
-    it('should enter account number and proceed to Step 5', async () => {
-      await RegistrationPage.enterAccountNumber(user.accountNumber);
-      await RegistrationPage.tapNext();
-    });
-  });
+  describe("Step 4 — Bank Account", () => {
+    it("should enter account number and proceed to Step 5", async () => {
+      await RegistrationPage.enterAccountNumber(user.accountNumber)
+      await RegistrationPage.tapNext()
+    })
+  })
 
-  describe('Step 5 — Pricing per Kilometre', () => {
-    it('should proceed with pre-filled pricing', async () => {
-      await RegistrationPage.tapNext();
-    });
-  });
+  describe("Step 5 — Pricing per Kilometre", () => {
+    it("should proceed with pre-filled pricing", async () => {
+      await RegistrationPage.tapNext()
+    })
+  })
 
-  describe('Step 6 — Submit', () => {
-    it('should tap Create Account, see success dialog, and dismiss it', async () => {
-      await RegistrationPage.tapCreateAccount();
-      expect(await RegistrationPage.isDisplayed(RegistrationPage.registrationSuccessDialog, 30000)).toBe(true);
-      await RegistrationPage.tap(RegistrationPage.okButton);
-    });
-  });
-});
+  describe("Step 6 — Submit", () => {
+    it("should tap Create Account, see success dialog, and dismiss it", async () => {
+      await RegistrationPage.tapCreateAccount()
+      expect(await RegistrationPage.isDisplayed(RegistrationPage.registrationSuccessDialog, 30000)).toBe(true)
+      await RegistrationPage.tap(RegistrationPage.okButton)
+    })
+  })
+})
 ```
 
 ---
@@ -1016,18 +1115,23 @@ describe('Service Registration', () => {
 ## Part 6 — Final Checks Before Running
 
 ### Type check
+
 ```cmd
 yarn typecheck
 ```
+
 No output = no errors.
 
 ### Verify Appium setup
+
 ```cmd
 yarn appium:doctor
 ```
+
 All `[✓]` items must pass. Fix anything marked `[✗]`.
 
 ### Run Appium doctor for Android specifically
+
 ```cmd
 npx appium-doctor --android
 ```
@@ -1044,11 +1148,13 @@ adb devices
 ```
 
 Then run:
+
 ```cmd
 yarn test:android
 ```
 
 To run a single suite:
+
 ```cmd
 yarn test:android:client
 yarn test:android:service
@@ -1123,6 +1229,7 @@ my-e2e-project\
 
 **Port 4723 already in use**
 → A previous Appium server is still running. Kill it:
+
 ```cmd
 netstat -ano | findstr :4723
 taskkill /PID <pid> /F

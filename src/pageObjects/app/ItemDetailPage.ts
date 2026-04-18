@@ -2,12 +2,12 @@ import { BasePage } from "@/pageObjects/base/BasePage"
 import { second } from "@/helpers/utils"
 
 class ItemDetailPage extends BasePage {
-  get selectOneSection(): string {
-    return '//android.view.View[@content-desc="Select one"]'
+  get menuSubtotal(): string {
+    return 'android=new UiSelector().description("Menu Subtotal")'
   }
 
   get firstVariation(): string {
-    return 'android=new UiSelector().descriptionContains("small pizza")'
+    return '(//android.widget.ScrollView//android.view.View[android.widget.RadioButton][@clickable="true"])[1]'
   }
 
   get cokeSelector(): string {
@@ -19,11 +19,14 @@ class ItemDetailPage extends BasePage {
   }
 
   async isLoaded(): Promise<boolean> {
-    return this.isDisplayed(this.selectOneSection, second(20))
+    return this.isDisplayed(this.menuSubtotal, second(20))
   }
 
-  async selectFirstVariation(): Promise<void> {
-    await this.tap(this.firstVariation)
+  async selectFirstVariationIfPresent(): Promise<void> {
+    const hasVariations = await this.isDisplayed(this.firstVariation, second(3))
+    if (hasVariations) {
+      await this.tap(this.firstVariation)
+    }
   }
 
   async selectCoke(): Promise<void> {

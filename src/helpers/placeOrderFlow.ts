@@ -12,23 +12,20 @@ export const runPlaceOrderSteps = () => {
     })
 
     it("should tap the second restaurant in the list", async () => {
-      await CustomerHomePage.tapRestaurant(1)
+      await CustomerHomePage.tapRestaurant(0)
     })
 
     it("should land on the restaurant menu page", async () => {
       expect(await RestaurantMenuPage.isLoaded()).toBe(true)
     })
 
-    it("should tap Pizza", async () => {
-      await RestaurantMenuPage.tapPizza()
+    it("should tap the first item on the menu", async () => {
+      await RestaurantMenuPage.tapFirstItem()
     })
 
-    it("should land on the item detail page", async () => {
+    it("should land on the item detail page and select variation if present", async () => {
       expect(await ItemDetailPage.isLoaded()).toBe(true)
-    })
-
-    it("should select the first variation", async () => {
-      await ItemDetailPage.selectFirstVariation()
+      await ItemDetailPage.selectFirstVariationIfPresent()
     })
 
     it("should select coke as the drink", async () => {

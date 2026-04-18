@@ -123,7 +123,6 @@ class RegistrationPage extends BasePage {
     await this.tap(this.dateOfBirthTrigger)
 
     const date = moment(dateStr, "DD/MM/YYYY")
-    console.log(`🔥 | dateStr:`, dateStr)
 
     const day = date.date()
     const month = date.month() + 1

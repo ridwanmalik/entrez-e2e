@@ -39,7 +39,7 @@
     "allure-commandline": "^2.31.0",
     "appium": "^3.0.0",
     "appium-uiautomator2-driver": "^7.0.0",
-    "chromedriver": "^145.0.6",
+    "chromedriver": "^147.0.0",
     "dotenv": "^16.4.0",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
