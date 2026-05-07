@@ -6,12 +6,20 @@ class CustomerDrawerPage extends BasePage {
     return '//android.widget.Button[@content-desc="Log Out"]'
   }
 
+  get okButton(): string {
+    return 'android=new UiSelector().description("OK")'
+  }
+
   async isLoaded(): Promise<boolean> {
     return this.isDisplayed(this.logOutButton, second(10))
   }
 
   async tapLogOut(): Promise<void> {
     await this.tap(this.logOutButton)
+  }
+
+  async tapOk(): Promise<void> {
+    await this.tap(this.okButton)
   }
 }
 

@@ -16,6 +16,10 @@ export const runLogoutSteps = () => {
       await CustomerDrawerPage.tapLogOut()
     })
 
+    it("should tap OK on the confirmation popup", async () => {
+      await CustomerDrawerPage.tapOk()
+    })
+
     it("should land back on the Welcome page", async () => {
       expect(await WelcomePage.isLoaded()).toBe(true)
     })

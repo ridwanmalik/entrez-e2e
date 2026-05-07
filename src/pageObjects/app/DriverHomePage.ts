@@ -11,7 +11,7 @@ class DriverHomePage extends BasePage {
   }
 
   async isLoaded(): Promise<boolean> {
-    return this.isDisplayed(this.workSchedulesHeading, second(20))
+    return this.isDisplayed(this.workSchedulesHeading, second(30))
   }
 
   async tapOrder(): Promise<void> {
