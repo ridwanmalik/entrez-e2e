@@ -1,3 +1,4 @@
+import { customerDropoffAddresses } from "@/data/locationTestData"
 import moment from "moment"
 
 export interface FinnishAddress {
@@ -20,7 +21,7 @@ const FINNISH_ADDRESSES: FinnishAddress[] = [
 ]
 
 export const generateFinnishAddress = (): FinnishAddress =>
-  FINNISH_ADDRESSES[Math.floor(Math.random() * FINNISH_ADDRESSES.length)]
+  customerDropoffAddresses[Math.floor(Math.random() * customerDropoffAddresses.length)]
 
 export const generateUniqueEmail = (): string => {
   const ts = moment().format("HHmmss")

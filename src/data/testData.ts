@@ -1,4 +1,5 @@
-import { generateFinnishAddress, generatePhoneNumber, generateUniqueEmail } from "@/helpers/utils"
+import { randomCustomerDropoffAddress } from "@/data/locationTestData"
+import { generatePhoneNumber, generateUniqueEmail } from "@/helpers/utils"
 import { faker } from "@faker-js/faker"
 import moment from "moment"
 
@@ -22,18 +23,33 @@ export interface UserData {
   postalCode: string
 }
 
-export const validUser = (role: Role = Role.Client): UserData => ({
-  firstName: faker.person.firstName(),
-  lastName: faker.person.lastName(),
-  email: generateUniqueEmail(),
-  phone: generatePhoneNumber(),
-  dateOfBirth: moment(faker.date.birthdate({ min: 18, max: 60, mode: 'age' })).format('DD/MM/YYYY'),
-  role,
-  pin: "Test7@",
-  accountNumber: faker.finance.iban({ countryCode: 'FI' }),
-  ...generateFinnishAddress(),
-  additionalAddress: '',
-})
+export const validUser = (role: Role = Role.Client): UserData => {
+  const address = randomCustomerDropoffAddress()
+
+  return {
+    firstName: faker.person.firstName(),
+    lastName: faker.person.lastName(),
+    email: generateUniqueEmail(),
+    phone: generatePhoneNumber(),
+    dateOfBirth: moment(faker.date.birthdate({ min: 18, max: 60, mode: 'age' })).format('DD/MM/YYYY'),
+    role,
+    pin: "Test7@",
+    accountNumber: faker.finance.iban({ countryCode: 'FI' }),
+    street: address.street,
+    additionalAddress: '',
+    city: address.city,
+    postalCode: address.postalCode,
+  }
+}
+
+export {
+  customerDropoffAddresses,
+  customerDropoffs,
+  driverBases,
+  geofences,
+  restaurantAddresses,
+  restaurants,
+} from "@/data/locationTestData"
 
 export const invalidUsers: Record<string, UserData> = {
   emptyEmail: {

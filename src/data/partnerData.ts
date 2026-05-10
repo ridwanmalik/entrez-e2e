@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker"
-import { generateFinnishAddress, generateUniqueEmail, generatePhoneNumber } from "@/helpers/utils"
+import { randomRestaurantAddress } from "@/data/locationTestData"
+import { generateUniqueEmail, generatePhoneNumber } from "@/helpers/utils"
 
 export interface BusinessEntry {
   id: string
@@ -309,7 +310,7 @@ export const randomBusinessEntry = (): BusinessEntry =>
 
 export const validPartner = (): PartnerData => {
   const business = randomBusinessEntry()
-  const address = generateFinnishAddress()
+  const address = randomRestaurantAddress()
   return {
     businessId: business.id,
     businessName: business.name,

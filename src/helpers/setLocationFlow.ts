@@ -1,9 +1,9 @@
-import { FinnishAddress, generateFinnishAddress } from "@/helpers/utils"
+import { AddressFixture, randomCustomerDropoffAddress } from "@/data/locationTestData"
 import CustomerHomePage from "@/pageObjects/app/CustomerHomePage"
 
 export const runSetLocationSteps = () => {
   describe("Step — Set Delivery Location", () => {
-    let address: FinnishAddress
+    let address: AddressFixture
 
     it("should tap the location bar on the home page", async () => {
       expect(await CustomerHomePage.isLoaded()).toBe(true)
@@ -11,7 +11,7 @@ export const runSetLocationSteps = () => {
     })
 
     it("should clear the field and enter a Finnish delivery address", async () => {
-      address = generateFinnishAddress()
+      address = randomCustomerDropoffAddress()
       await CustomerHomePage.enterLocationSearch(`${address.street}, ${address.city}`)
     })
 
