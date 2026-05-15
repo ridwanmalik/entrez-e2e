@@ -13,7 +13,7 @@ export const runPreCleanupSteps = () => {
       if (isCustomerHome || isDriverHome) {
         await CustomerHomePage.tapAccountTab()
         await CustomerDrawerPage.tapLogOut()
-        await CustomerDrawerPage.tapOk()
+        // await CustomerDrawerPage.tapOk()
       }
     })
   })

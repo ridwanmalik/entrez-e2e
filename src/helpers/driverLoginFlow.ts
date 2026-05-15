@@ -1,7 +1,7 @@
 import { DriverCredentials } from "@/data/driverData"
+import DriverHomePage from "@/pageObjects/app/DriverHomePage"
 import LoginPage from "@/pageObjects/app/LoginPage"
 import WelcomePage from "@/pageObjects/WelcomePage"
-import DriverHomePage from "@/pageObjects/app/DriverHomePage"
 
 export const runDriverLoginSteps = (credentials: DriverCredentials) => {
   describe("Step 6 — Driver Login", () => {
@@ -24,6 +24,7 @@ export const runDriverLoginSteps = (credentials: DriverCredentials) => {
 
     it("should tap LOGIN and land on the driver home screen", async () => {
       await LoginPage.tapLogin()
+      await DriverHomePage.tapGoOnlineIfPrompted()
       expect(await DriverHomePage.isLoaded()).toBe(true)
     })
   })

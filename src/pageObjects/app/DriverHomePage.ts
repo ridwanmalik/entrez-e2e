@@ -10,8 +10,19 @@ class DriverHomePage extends BasePage {
     return 'android=new UiSelector().descriptionContains("Delivery Address")'
   }
 
+  get goOnlineButton(): string {
+    return 'android=new UiSelector().description("Go Online")'
+  }
+
   async isLoaded(): Promise<boolean> {
     return this.isDisplayed(this.workSchedulesHeading, second(30))
+  }
+
+  async tapGoOnlineIfPrompted(): Promise<void> {
+    if (await this.isDisplayed(this.goOnlineButton, second(15))) {
+      await this.tap(this.goOnlineButton)
+      return
+    }
   }
 
   async tapOrder(): Promise<void> {

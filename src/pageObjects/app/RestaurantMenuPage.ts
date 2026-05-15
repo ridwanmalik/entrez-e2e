@@ -3,7 +3,7 @@ import { second } from "@/helpers/utils"
 
 class RestaurantMenuPage extends BasePage {
   get firstMenuItem(): string {
-    return '(//android.widget.ScrollView//android.widget.ImageView[@clickable="true"])[1]'
+    return "(//android.widget.ScrollView//android.widget.ImageView)[1]"
   }
 
   get deliveryTime(): string {

@@ -6,5 +6,5 @@ import { runDriverLoginSteps } from "@/helpers/driverLoginFlow"
 describe("Driver Order Flow", () => {
   runDriverLoginSteps(qaDriver)
   runDriverDeliverySteps()
-  runLogoutSteps()
+  runLogoutSteps({ confirmLogout: true, scrollToLogout: true })
 })
