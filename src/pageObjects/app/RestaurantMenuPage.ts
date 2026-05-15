@@ -1,13 +1,13 @@
-import { BasePage } from "@/pageObjects/base/BasePage"
 import { second } from "@/helpers/utils"
+import { BasePage } from "@/pageObjects/base/BasePage"
 
 class RestaurantMenuPage extends BasePage {
   get firstMenuItem(): string {
-    return "(//android.widget.ScrollView//android.widget.ImageView)[1]"
+    return '(//android.widget.ScrollView//android.widget.ImageView[@clickable="true"])[1]'
   }
 
   get deliveryTime(): string {
-    return 'android=new UiSelector().descriptionStartsWith("Delivery:")'
+    return 'android=new UiSelector().descriptionStartsWith("Preparation Time")'
   }
 
   async isLoaded(): Promise<boolean> {
